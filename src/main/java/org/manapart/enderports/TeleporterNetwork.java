@@ -8,11 +8,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class TeleporterNetwork {
-    HashMap<String, ArrayList<BlockPos>> network = new HashMap<>();
+    private HashMap<String, ArrayList<BlockPos>> network = new HashMap<>();
 
     public void addTeleporter(World world, BlockPos pos) {
         String beneathBlockName = getKey(world, pos);
-        System.out.println("Adding teleporter with " + beneathBlockName);
+//        System.out.println("Adding teleporter with " + beneathBlockName);
         if (!network.containsKey(beneathBlockName)) {
             network.put(beneathBlockName, new ArrayList<>());
         }
@@ -23,7 +23,7 @@ public class TeleporterNetwork {
 
     public void removeTeleporter(World world, BlockPos pos) {
         String beneathBlockName = getKey(world, pos);
-        System.out.println("Removing teleporter with " + beneathBlockName);
+//        System.out.println("Removing teleporter with " + beneathBlockName);
         if (network.containsKey(beneathBlockName) && network.get(beneathBlockName).contains(pos)) {
             network.get(beneathBlockName).remove(pos);
         }
@@ -31,9 +31,9 @@ public class TeleporterNetwork {
 
     public BlockPos getNextTeleporter(World world, BlockPos pos) {
         String beneathBlockName = getKey(world, pos);
-        System.out.println("Next teleporter with " + beneathBlockName);
+//        System.out.println("Next teleporter with " + beneathBlockName);
         if (network.containsKey(beneathBlockName) && network.get(beneathBlockName).size() > 0) {
-             ArrayList<BlockPos> positions = network.get(beneathBlockName);
+            ArrayList<BlockPos> positions = network.get(beneathBlockName);
             int index = positions.indexOf(pos) + 1;
             if (index >= positions.size()) index = 0;
             return positions.get(index);
