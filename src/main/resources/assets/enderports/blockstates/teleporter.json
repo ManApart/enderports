@@ -1,0 +1,5 @@
+{
+    "variants": {
+      "": { "model": "enderports:block/teleporter" }
+    }
+}
