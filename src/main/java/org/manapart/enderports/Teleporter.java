@@ -31,18 +31,18 @@ public class Teleporter extends SlabBlock {
     @Override
     public void onBlockPlacedBy(World world, BlockPos blockPos, BlockState state, @Nullable LivingEntity entity, ItemStack itemStack) {
         super.onBlockPlacedBy(world, blockPos, state, entity, itemStack);
-        EnderPorts.teleporterNetwork.addTeleporter(world, blockPos);
+        EnderPorts.teleporterNetwork.addTeleporter(TeleporterNetwork.getKey(world, blockPos), blockPos);
     }
 
     @Override
     public void onBlockHarvested(World world, BlockPos blockPos, BlockState blockState, PlayerEntity playerEntity) {
         super.onBlockHarvested(world, blockPos, blockState, playerEntity);
-        EnderPorts.teleporterNetwork.removeTeleporter(world, blockPos);
+        EnderPorts.teleporterNetwork.removeTeleporter(TeleporterNetwork.getKey(world, blockPos), blockPos);
     }
 
-    private void teleport(World worldIn, BlockPos pos, PlayerEntity entity) {
-        BlockPos newPos = EnderPorts.teleporterNetwork.getNextTeleporter(worldIn, pos);
-        if (!pos.equals(newPos)) {
+    private void teleport(World world, BlockPos blockPos, PlayerEntity entity) {
+        BlockPos newPos = EnderPorts.teleporterNetwork.getNextTeleporter(TeleporterNetwork.getKey(world, blockPos), blockPos);
+        if (!blockPos.equals(newPos)) {
             entity.setPosition(newPos.getX() + .5, newPos.getY() + 1, newPos.getZ()+.5);
         }
     }
