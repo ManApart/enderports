@@ -1,8 +1,8 @@
 {
-    "parent": "block/slab",
-    "textures": {
-        "bottom": "enderports:block/teleporter",
-        "top": "enderports:block/teleporter",
-        "side": "enderports:block/teleporter"
-    }
+  "parent": "block/slab",
+  "textures": {
+    "top": "minecraft:block/end_portal_frame_top",
+    "side": "minecraft:block/end_stone_bricks",
+    "bottom": "minecraft:block/end_stone"
+  }
 }
