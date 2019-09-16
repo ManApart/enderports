@@ -32,13 +32,11 @@ public class TeleporterNetwork extends WorldSavedData {
         for (INBT nodeI : nodes) {
             CompoundNBT node = (CompoundNBT) nodeI;
             String key = node.getString("key");
-            Double x = node.getDouble("x");
-            Double y = node.getDouble("y");
-            Double z = node.getDouble("z");
+            double x = node.getDouble("x");
+            double y = node.getDouble("y");
+            double z = node.getDouble("z");
             BlockPos pos = new BlockPos(x, y, z);
-            if (!(pos.getX() == 0 && pos.getY() == 0 && pos.getZ() == 0)) {
-                addTeleporter(key, pos);
-            }
+            addTeleporter(key, pos);
         }
     }
 
@@ -95,7 +93,13 @@ public class TeleporterNetwork extends WorldSavedData {
             ArrayList<BlockPos> positions = network.get(beneathBlockName);
             int index = positions.indexOf(pos) + 1;
             if (index >= positions.size()) index = 0;
-            return positions.get(index);
+            BlockPos nextPos = positions.get(index);
+            if (isTeleporter(nextPos)){
+                return nextPos;
+            } else {
+                removeTeleporter(nextPos);
+                return  getNextTeleporter(pos);
+            }
         }
         return pos;
     }
@@ -108,10 +112,18 @@ public class TeleporterNetwork extends WorldSavedData {
         return "";
     }
 
+    private boolean isTeleporter(BlockPos pos) {
+        ResourceLocation blockRegistryKey = world.getBlockState(pos).getBlock().getRegistryName();
+        String key = "";
+        if (blockRegistryKey != null) {
+            key = blockRegistryKey.toString();
+        }
+        return key.equals(EnderPorts.teleporter.getRegistryName().toString());
+    }
+
     public static TeleporterNetwork getNetwork(ServerWorld world) {
         return world.getSavedData().getOrCreate(new NetworkSupplier(world), DATA_NAME);
     }
-
 
     private static class NetworkSupplier implements Supplier<TeleporterNetwork> {
         private ServerWorld world;
