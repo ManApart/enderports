@@ -5,45 +5,57 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.SlabBlock;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialColor;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.world.ServerWorld;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 
 public class Teleporter extends SlabBlock {
+
     public Teleporter() {
         super(Block.Properties.create(Material.IRON, MaterialColor.BLUE));
-        setRegistryName("teleporter");
     }
 
     @Override
     public boolean onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult rayTraceResult) {
         boolean result = super.onBlockActivated(state, world, pos, player, hand, rayTraceResult);
-        teleport(world, pos, player);
+        System.out.println("On block clicked");
+        if (world instanceof ServerWorld) {
+//        if (world instanceof ServerWorld && Minecraft.getInstance().player.getEntityId() == player.getEntityId()) {
+            ServerWorld serverWorld = (ServerWorld) world;
+            BlockPos nextPos = TeleporterNetwork.getNetwork(serverWorld).getNextTeleporter(pos);
+            if (!pos.equals(nextPos)) {
+                ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
+//                Minecraft.getInstance().player.setPosition(nextPos.getX() + .5, nextPos.getY() + 1, nextPos.getZ() + .5);
+                serverPlayer.connection.setPlayerLocation(nextPos.getX() + .5, nextPos.getY() + 1, nextPos.getZ() + .5, 0, 0);
+            }
+        }
+
         return result;
     }
 
     @Override
     public void onBlockPlacedBy(World world, BlockPos blockPos, BlockState state, @Nullable LivingEntity entity, ItemStack itemStack) {
         super.onBlockPlacedBy(world, blockPos, state, entity, itemStack);
-        EnderPorts.teleporterNetwork.addTeleporter(TeleporterNetwork.getKey(world, blockPos), blockPos);
+
+        if (world instanceof ServerWorld) {
+            TeleporterNetwork.getNetwork((ServerWorld) world).addTeleporter(blockPos);
+        }
     }
 
     @Override
     public void onBlockHarvested(World world, BlockPos blockPos, BlockState blockState, PlayerEntity playerEntity) {
         super.onBlockHarvested(world, blockPos, blockState, playerEntity);
-        EnderPorts.teleporterNetwork.removeTeleporter(TeleporterNetwork.getKey(world, blockPos), blockPos);
-    }
-
-    private void teleport(World world, BlockPos blockPos, PlayerEntity entity) {
-        BlockPos newPos = EnderPorts.teleporterNetwork.getNextTeleporter(TeleporterNetwork.getKey(world, blockPos), blockPos);
-        if (!blockPos.equals(newPos)) {
-            entity.setPosition(newPos.getX() + .5, newPos.getY() + 1, newPos.getZ()+.5);
+        if (world instanceof ServerWorld) {
+            TeleporterNetwork.getNetwork((ServerWorld) world).removeTeleporter(blockPos);
         }
     }
 }

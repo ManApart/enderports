@@ -5,18 +5,25 @@ import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.ServerWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.WorldSavedData;
 import net.minecraftforge.common.util.Constants;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.function.Supplier;
+
+import static org.manapart.enderports.EnderPorts.MODID;
 
 public class TeleporterNetwork extends WorldSavedData {
+    public static final String DATA_NAME = MODID + "_TeleporterSaveData";
     private HashMap<String, ArrayList<BlockPos>> network = new HashMap<>();
+    private World world;
 
-    public TeleporterNetwork() {
-        super("TeleporterSaveData");
+    public TeleporterNetwork(World world) {
+        super(DATA_NAME);
+        this.world = world;
     }
 
     @Override
@@ -25,8 +32,13 @@ public class TeleporterNetwork extends WorldSavedData {
         for (INBT nodeI : nodes) {
             CompoundNBT node = (CompoundNBT) nodeI;
             String key = node.getString("key");
-            BlockPos pos = new BlockPos(nbt.getDouble("x"), nbt.getDouble("y"), nbt.getDouble("z"));
-            addTeleporter(key, pos);
+            Double x = node.getDouble("x");
+            Double y = node.getDouble("y");
+            Double z = node.getDouble("z");
+            BlockPos pos = new BlockPos(x, y, z);
+            if (!(pos.getX() == 0 && pos.getY() == 0 && pos.getZ() == 0)) {
+                addTeleporter(key, pos);
+            }
         }
     }
 
@@ -50,6 +62,11 @@ public class TeleporterNetwork extends WorldSavedData {
         return cnbt;
     }
 
+    public void addTeleporter(BlockPos pos) {
+        String beneathBlockName = getKey(pos);
+        addTeleporter(beneathBlockName, pos);
+    }
+
 
     public void addTeleporter(String beneathBlockName, BlockPos pos) {
 //        System.out.println("Adding teleporter with " + beneathBlockName);
@@ -59,16 +76,20 @@ public class TeleporterNetwork extends WorldSavedData {
         if (!network.get(beneathBlockName).contains(pos)) {
             network.get(beneathBlockName).add(pos);
         }
+        markDirty();
     }
 
-    public void removeTeleporter(String beneathBlockName, BlockPos pos) {
+    public void removeTeleporter(BlockPos pos) {
+        String beneathBlockName = getKey(pos);
 //        System.out.println("Removing teleporter with " + beneathBlockName);
         if (network.containsKey(beneathBlockName) && network.get(beneathBlockName).contains(pos)) {
             network.get(beneathBlockName).remove(pos);
         }
+        markDirty();
     }
 
-    public BlockPos getNextTeleporter(String beneathBlockName, BlockPos pos) {
+    public BlockPos getNextTeleporter(BlockPos pos) {
+        String beneathBlockName = getKey(pos);
 //        System.out.println("Next teleporter with " + beneathBlockName);
         if (network.containsKey(beneathBlockName) && network.get(beneathBlockName).size() > 0) {
             ArrayList<BlockPos> positions = network.get(beneathBlockName);
@@ -79,12 +100,31 @@ public class TeleporterNetwork extends WorldSavedData {
         return pos;
     }
 
-    public static String getKey(World world, BlockPos pos) {
+    private String getKey(BlockPos pos) {
         ResourceLocation registryName = world.getBlockState(pos.down()).getBlock().getRegistryName();
         if (registryName != null) {
             return registryName.toString();
         }
         return "";
     }
+
+    public static TeleporterNetwork getNetwork(ServerWorld world) {
+        return world.getSavedData().getOrCreate(new NetworkSupplier(world), DATA_NAME);
+    }
+
+
+    private static class NetworkSupplier implements Supplier<TeleporterNetwork> {
+        private ServerWorld world;
+
+        public NetworkSupplier(ServerWorld world) {
+            this.world = world;
+        }
+
+        @Override
+        public TeleporterNetwork get() {
+            return new TeleporterNetwork(world);
+        }
+    }
+
 }
 

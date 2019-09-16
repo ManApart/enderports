@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "group": "wooden_slab",
   "pattern": [
     "###",
     "IRI",
@@ -24,7 +25,6 @@
   },
   "result": {
     "item": "enderports:teleporteritem",
-    "count": 1,
-    "data": 0
+    "count": 1
   }
 }

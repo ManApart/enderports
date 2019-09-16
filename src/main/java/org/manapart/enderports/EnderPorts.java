@@ -1,83 +1,74 @@
 package org.manapart.enderports;
 
 import net.minecraft.block.Block;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryBuilder;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(EnderPorts.MODID)
-@Mod.EventBusSubscriber
+@Mod.EventBusSubscriber(modid = EnderPorts.MODID)
 public class EnderPorts {
 
     public static final String MODID = "enderports";
-    public static final Teleporter teleporter = new Teleporter();
-    public static final TeleporterItem teleporterItem = new TeleporterItem(teleporter);
+    public static final Teleporter teleporter = createBlock();
+    public static final TeleporterItem teleporterItem = createItem(teleporter);
     public static Item enderportsIcon = createIcon();
-    public static final TeleporterNetwork teleporterNetwork = new TeleporterNetwork();
 
     public EnderPorts() {
         MinecraftForge.EVENT_BUS.register(this);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerBlocks);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerItems);
-//        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onModelRegistry);
+//        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onEntityTeleported);
     }
-
-//    @SubscribeEvent
-//    public void onBreak(BlockEvent.BreakEvent event) {
-//        System.out.println("Break block");
-//        Block block = event.getState().getBlock();
-//        BlockPos pos = event.getPos();
-//        event.getPlayer().addItemStackToInventory(new ItemStack(teleporterItem));
-//
-//    }
 
     @SubscribeEvent
     public void registerBlocks(RegistryEvent.Register<Block> event) {
         System.out.println("Registering blocks");
-        ForgeRegistries.BLOCKS.register(teleporter);
+        if (!ForgeRegistries.BLOCKS.containsKey(teleporter.getRegistryName())) {
+            ForgeRegistries.BLOCKS.register(teleporter);
+        }
     }
 
     @SubscribeEvent
     public void registerItems(RegistryEvent.Register<Item> event) {
         System.out.println("Registering items");
-        ForgeRegistries.ITEMS.register(teleporterItem);
-        ForgeRegistries.ITEMS.register(enderportsIcon);
+        if (!ForgeRegistries.ITEMS.containsKey(teleporterItem.getRegistryName())) {
+            ForgeRegistries.ITEMS.register(teleporterItem);
+            ForgeRegistries.ITEMS.register(enderportsIcon);
+        }
     }
 
-    @SubscribeEvent
-    public void registerTeleporters(RegistryEvent.NewRegistry event) {
-        System.out.println("Registering new registry");
-//        new RegistryBuilder()
-//                .setName(new ResourceLocation("enderports:teleporternetwork"))
-//                .setType(TeleporterNetwork.class)
-//                .create();
-    }
+//    @SubscribeEvent()
+//    public void onEntityTeleported(TeleportEvent event) {
+//        PlayerEntity player = (PlayerEntity) event.getEntity();
+//        player.setPosition(event.getNextPos().getX() + .5, event.getNextPos().getY() + 1, event.getNextPos().getZ() + .5);
+//        System.out.println("Player moved to " + player.getPosition().toString());
+//    }
 
     private static Item createIcon() {
         Item icon = new Item(new Item.Properties());
-        icon.setRegistryName("ep_icon");
+        icon.setRegistryName(MODID + ":ep_icon");
         return icon;
     }
 
-//    @SubscribeEvent
-//    public void onModelRegistry(ModelRegistryEvent event) {
-//        System.out.println("Model Registry");
-//        registerRender(Item.getItemFromBlock(tutorialBlock));
-//    }
-//
-//    public static void registerRender(Item item) {
-////        ModelLoaderRegistry.registerLoader();
-//        ModelLoaderRegistry.
-//        ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation( item.getRegistryName(), "inventory"));
-//    }
+    private static Teleporter createBlock() {
+        Teleporter teleporter = new Teleporter();
+        teleporter.setRegistryName(new ResourceLocation(MODID + ":teleporter"));
+        return teleporter;
+    }
+
+    private static TeleporterItem createItem(Teleporter block) {
+        TeleporterItem teleporter = new TeleporterItem(block);
+        teleporter.setRegistryName(new ResourceLocation(MODID + ":teleporteritem"));
+        return teleporter;
+    }
 
 
 }
