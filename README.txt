@@ -1,4 +1,4 @@
-/give @p minecraft:teleporteritem
+/give @p enderports:teleporteritem
 
 
 
