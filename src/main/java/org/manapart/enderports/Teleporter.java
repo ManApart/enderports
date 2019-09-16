@@ -51,7 +51,7 @@ public class Teleporter extends SlabBlock {
             BlockPos nextPos = TeleporterNetwork.getNetwork(serverWorld).getNextTeleporter(pos);
             if (!pos.equals(nextPos)) {
                 ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
-                serverPlayer.connection.setPlayerLocation(nextPos.getX() + .5, nextPos.getY() + 1, nextPos.getZ() + .5, 0, 0);
+                serverPlayer.connection.setPlayerLocation(nextPos.getX() + .5, nextPos.getY() + 1, nextPos.getZ() + .5, serverPlayer.getYaw(0f), 0);
                 serverWorld.playSound(null, nextPos, SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 1f, 1f );
             }
         }
