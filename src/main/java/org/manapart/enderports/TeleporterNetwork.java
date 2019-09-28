@@ -12,6 +12,7 @@ import net.minecraftforge.common.util.Constants;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.function.Supplier;
 
 import static org.manapart.enderports.EnderPorts.MODID;
@@ -87,6 +88,10 @@ public class TeleporterNetwork extends WorldSavedData {
     }
 
     public BlockPos getNextTeleporter(BlockPos pos) {
+        return getNextTeleporterWithRetry(pos, true);
+    }
+
+    private BlockPos getNextTeleporterWithRetry(BlockPos pos, boolean retry) {
         String beneathBlockName = getKey(pos);
 //        System.out.println("Next teleporter with " + beneathBlockName);
         if (network.containsKey(beneathBlockName) && network.get(beneathBlockName).size() > 0) {
@@ -94,14 +99,41 @@ public class TeleporterNetwork extends WorldSavedData {
             int index = positions.indexOf(pos) + 1;
             if (index >= positions.size()) index = 0;
             BlockPos nextPos = positions.get(index);
-            if (isTeleporter(nextPos)){
-                return nextPos;
+            if (isTeleporter(nextPos)) {
+                if (getKey(nextPos).equals(beneathBlockName)) {
+                    return nextPos;
+                }
             } else {
                 removeTeleporter(nextPos);
-                return  getNextTeleporter(pos);
             }
         }
+        if (retry){
+            reBalance();
+            return getNextTeleporterWithRetry(pos, false);
+        }
         return pos;
+    }
+
+    public void reBalance() {
+        System.out.println("Rebalancing teleporter network.");
+        HashMap<String, ArrayList<BlockPos>> staleTeleporters = new HashMap<>();
+        for (String beneathBlockName : network.keySet()) {
+            for (BlockPos pos : network.get(beneathBlockName)) {
+                if (!getKey(pos).equals(beneathBlockName)) {
+                    if (!staleTeleporters.containsKey(beneathBlockName)) {
+                        staleTeleporters.put(beneathBlockName, new ArrayList<>());
+                    }
+                    staleTeleporters.get(beneathBlockName).add(pos);
+                }
+            }
+        }
+
+        for (String beneathBlockName : staleTeleporters.keySet()) {
+            for (BlockPos pos : staleTeleporters.get(beneathBlockName)) {
+                network.get(beneathBlockName).remove(pos);
+                addTeleporter(pos);
+            }
+        }
     }
 
     private String getKey(BlockPos pos) {

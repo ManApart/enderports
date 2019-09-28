@@ -14,6 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.world.IWorldReader;
 import net.minecraft.world.ServerWorld;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ToolType;
@@ -63,7 +64,9 @@ public class Teleporter extends SlabBlock {
     public void onBlockPlacedBy(World world, BlockPos blockPos, BlockState state, @Nullable LivingEntity entity, ItemStack itemStack) {
         super.onBlockPlacedBy(world, blockPos, state, entity, itemStack);
         if (world instanceof ServerWorld) {
-            TeleporterNetwork.getNetwork((ServerWorld) world).addTeleporter(blockPos);
+            TeleporterNetwork network = TeleporterNetwork.getNetwork((ServerWorld) world);
+            network.reBalance();
+            network.addTeleporter(blockPos);
         }
     }
 
