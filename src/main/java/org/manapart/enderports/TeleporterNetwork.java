@@ -5,14 +5,13 @@ import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.ServerWorld;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.WorldSavedData;
 import net.minecraftforge.common.util.Constants;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.function.Supplier;
 
 import static org.manapart.enderports.EnderPorts.MODID;
