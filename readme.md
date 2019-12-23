@@ -1,8 +1,10 @@
 /give @p enderports:teleporteritem
 
-
-
 gradlew genIntellijRuns
+
+![](./crafting.png)
+
+
 
 -------------------------------------------
 Source installation information for modders
@@ -45,15 +47,3 @@ If at any point you are missing libraries in your IDE, or you've run into proble
 Should it still not work, 
 Refer to #ForgeGradle on EsperNet for more information about the gradle environment.
 or the Forge Project Discord discord.gg/UvedJ9m
-
-Forge source installation
-=========================
-MinecraftForge ships with this code and installs it as part of the forge
-installation process, no further action is required on your part.
-
-LexManos' Install Video
-=======================
-https://www.youtube.com/watch?v=8VEdtQLuLO0&feature=youtu.be
-
-For more details update more often refer to the Forge Forums:
-http://www.minecraftforge.net/forum/index.php/topic,14048.0.html
