@@ -10,10 +10,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.World;
@@ -45,9 +42,7 @@ public class Teleporter extends SlabBlock {
     }
 
     @Override
-    public boolean onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult rayTraceResult) {
-        boolean result = super.onBlockActivated(state, world, pos, player, hand, rayTraceResult);
-//        System.out.println("On block clicked");
+    public ActionResultType onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult rayTraceResult) {
         if (world instanceof ServerWorld) {
             ServerWorld serverWorld = (ServerWorld) world;
             BlockPos nextPos = TeleporterNetwork.getNetwork(serverWorld).getNextTeleporter(pos);
@@ -58,7 +53,7 @@ public class Teleporter extends SlabBlock {
             }
         }
 
-        return result;
+        return ActionResultType.PASS;
     }
 
     @Override
