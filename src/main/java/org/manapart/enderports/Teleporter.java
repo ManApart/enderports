@@ -49,8 +49,8 @@ public class Teleporter extends SlabBlock {
     }
 
     @Override
-    public void onPlace(BlockState state, World world, BlockPos pos, BlockState state2, boolean boolThing) {
-        super.onPlace(state, world, pos, state2, boolThing);
+    public void onPlace(BlockState state, World world, BlockPos pos, BlockState newState, boolean boolThing) {
+        super.onPlace(state, world, pos, newState, boolThing);
         if (world instanceof ServerWorld) {
             TeleporterNetwork network = TeleporterNetwork.getNetwork((ServerWorld) world);
             network.reBalance();
