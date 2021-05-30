@@ -25,13 +25,13 @@ public class EnderPorts {
 
     private static Teleporter createBlock() {
         Teleporter teleporter = new Teleporter();
-        teleporter.setRegistryName("teleporter");
+        teleporter.setRegistryName(MODID, "teleporter");
         return teleporter;
     }
 
     private static TeleporterItem createItem(Teleporter block) {
         TeleporterItem teleporter = new TeleporterItem(block);
-        teleporter.setRegistryName("teleporteritem");
+        teleporter.setRegistryName(MODID, "teleporteritem");
         return teleporter;
     }
 

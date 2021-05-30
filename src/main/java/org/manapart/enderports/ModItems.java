@@ -12,7 +12,7 @@ import static org.manapart.enderports.EnderPorts.teleporterItem;
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModItems {
     @SubscribeEvent
-    public void registerItems(RegistryEvent.Register<Item> event) {
+    public static void registerItems(RegistryEvent.Register<Item> event) {
         if (!ForgeRegistries.ITEMS.containsKey(teleporterItem.getRegistryName())) {
             ForgeRegistries.ITEMS.register(teleporterItem);
             ForgeRegistries.ITEMS.register(enderportsIcon);

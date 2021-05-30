@@ -11,7 +11,7 @@ import static org.manapart.enderports.EnderPorts.teleporter;
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModBlocks {
     @SubscribeEvent
-    public void registerBlocks(RegistryEvent.Register<Block> event) {
+    public static void registerBlocks(RegistryEvent.Register<Block> event) {
         if (!ForgeRegistries.BLOCKS.containsKey(teleporter.getRegistryName())) {
             ForgeRegistries.BLOCKS.register(teleporter);
         }
