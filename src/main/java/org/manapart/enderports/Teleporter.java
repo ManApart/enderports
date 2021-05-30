@@ -1,9 +1,6 @@
 package org.manapart.enderports;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.block.SoundType;
+import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialColor;
 import net.minecraft.entity.LivingEntity;
@@ -22,55 +19,51 @@ import javax.annotation.Nullable;
 public class Teleporter extends SlabBlock {
 
     public Teleporter() {
-        super(Block.Properties.create(Material.IRON, MaterialColor.BLUE).hardnessAndResistance(4f).sound(SoundType.METAL));
+        super(createProps());
     }
 
-    @Nullable
-    @Override
-    public ToolType getHarvestTool(BlockState state) {
-        return ToolType.PICKAXE;
+    private static AbstractBlock.Properties createProps() {
+        Material padMat = new Material.Builder(MaterialColor.COLOR_BLUE).build();
+        AbstractBlock.Properties props = AbstractBlock.Properties.of(padMat);
+        props.sound(SoundType.METAL);
+        props.requiresCorrectToolForDrops();
+        props.harvestTool(ToolType.PICKAXE);
+        props.strength(4);
+        return props;
     }
 
-    @Override
-    public int getHarvestLevel(BlockState state) {
-        return 2; //Harvest level of 2 means it requires iron or better to harvest
-    }
 
-    @Override
-    public ResourceLocation getLootTable() {
-        return super.getLootTable();
-    }
 
-    @Override
-    public ActionResultType onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult rayTraceResult) {
-        if (world instanceof ServerWorld) {
-            ServerWorld serverWorld = (ServerWorld) world;
-            BlockPos nextPos = TeleporterNetwork.getNetwork(serverWorld).getNextTeleporter(pos);
-            if (!pos.equals(nextPos)) {
-                ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
-                serverPlayer.connection.setPlayerLocation(nextPos.getX() + .5, nextPos.getY() + 1, nextPos.getZ() + .5, serverPlayer.getYaw(0f), 0);
-                serverWorld.playSound(null, nextPos, SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 1f, 1f );
-            }
-        }
-
-        return ActionResultType.PASS;
-    }
-
-    @Override
-    public void onBlockPlacedBy(World world, BlockPos blockPos, BlockState state, @Nullable LivingEntity entity, ItemStack itemStack) {
-        super.onBlockPlacedBy(world, blockPos, state, entity, itemStack);
-        if (world instanceof ServerWorld) {
-            TeleporterNetwork network = TeleporterNetwork.getNetwork((ServerWorld) world);
-            network.reBalance();
-            network.addTeleporter(blockPos);
-        }
-    }
-
-    @Override
-    public void onBlockHarvested(World world, BlockPos blockPos, BlockState blockState, PlayerEntity playerEntity) {
-        super.onBlockHarvested(world, blockPos, blockState, playerEntity);
-        if (world instanceof ServerWorld) {
-            TeleporterNetwork.getNetwork((ServerWorld) world).removeTeleporter(blockPos);
-        }
-    }
+//    @Override
+//    public ActionResultType onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult rayTraceResult) {
+//        if (world instanceof ServerWorld) {
+//            ServerWorld serverWorld = (ServerWorld) world;
+//            BlockPos nextPos = TeleporterNetwork.getNetwork(serverWorld).getNextTeleporter(pos);
+//            if (!pos.equals(nextPos)) {
+//                ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
+//                serverPlayer.connection.setPlayerLocation(nextPos.getX() + .5, nextPos.getY() + 1, nextPos.getZ() + .5, serverPlayer.getYaw(0f), 0);
+//                serverWorld.playSound(null, nextPos, SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 1f, 1f );
+//            }
+//        }
+//
+//        return ActionResultType.PASS;
+//    }
+//
+//    @Override
+//    public void onBlockPlacedBy(World world, BlockPos blockPos, BlockState state, @Nullable LivingEntity entity, ItemStack itemStack) {
+//        super.onBlockPlacedBy(world, blockPos, state, entity, itemStack);
+//        if (world instanceof ServerWorld) {
+//            TeleporterNetwork network = TeleporterNetwork.getNetwork((ServerWorld) world);
+//            network.reBalance();
+//            network.addTeleporter(blockPos);
+//        }
+//    }
+//
+//    @Override
+//    public void onBlockHarvested(World world, BlockPos blockPos, BlockState blockState, PlayerEntity playerEntity) {
+//        super.onBlockHarvested(world, blockPos, blockState, playerEntity);
+//        if (world instanceof ServerWorld) {
+//            TeleporterNetwork.getNetwork((ServerWorld) world).removeTeleporter(blockPos);
+//        }
+//    }
 }

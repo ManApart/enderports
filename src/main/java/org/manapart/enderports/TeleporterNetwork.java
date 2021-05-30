@@ -27,7 +27,7 @@ public class TeleporterNetwork extends WorldSavedData {
     }
 
     @Override
-    public void read(CompoundNBT nbt) {
+    public void load(CompoundNBT nbt) {
         ListNBT nodes = nbt.getList("nodes", Constants.NBT.TAG_COMPOUND);
         for (INBT nodeI : nodes) {
             CompoundNBT node = (CompoundNBT) nodeI;
@@ -41,7 +41,7 @@ public class TeleporterNetwork extends WorldSavedData {
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT compound) {
+    public CompoundNBT save(CompoundNBT compound) {
         CompoundNBT cnbt = new CompoundNBT();
         ListNBT nodes = new ListNBT();
 
@@ -74,7 +74,7 @@ public class TeleporterNetwork extends WorldSavedData {
         if (!network.get(beneathBlockName).contains(pos)) {
             network.get(beneathBlockName).add(pos);
         }
-        markDirty();
+        setDirty();
     }
 
     public void removeTeleporter(BlockPos pos) {
@@ -83,7 +83,7 @@ public class TeleporterNetwork extends WorldSavedData {
         if (network.containsKey(beneathBlockName) && network.get(beneathBlockName).contains(pos)) {
             network.get(beneathBlockName).remove(pos);
         }
-        markDirty();
+        setDirty();
     }
 
     public BlockPos getNextTeleporter(BlockPos pos) {
@@ -136,7 +136,7 @@ public class TeleporterNetwork extends WorldSavedData {
     }
 
     private String getKey(BlockPos pos) {
-        ResourceLocation registryName = world.getBlockState(pos.down()).getBlock().getRegistryName();
+        ResourceLocation registryName = world.getBlockState(pos.below()).getBlock().getRegistryName();
         if (registryName != null) {
             return registryName.toString();
         }
@@ -153,11 +153,12 @@ public class TeleporterNetwork extends WorldSavedData {
     }
 
     public static TeleporterNetwork getNetwork(ServerWorld world) {
-        return world.getSavedData().getOrCreate(new NetworkSupplier(world), DATA_NAME);
+        return world.getDataStorage().computeIfAbsent(new NetworkSupplier(world), DATA_NAME);
+//        return world.getSavedData().getOrCreate(new NetworkSupplier(world), DATA_NAME);
     }
 
     private static class NetworkSupplier implements Supplier<TeleporterNetwork> {
-        private ServerWorld world;
+        private final ServerWorld world;
 
         public NetworkSupplier(ServerWorld world) {
             this.world = world;
