@@ -9,5 +9,4 @@ object ModItems {
     val TELEPORT_ITEM by REGISTRY.registerObject("teleporteritem") {
         TeleporterItem(ModBlocks.teleporter)
     }
-//     ForgeRegistries.ITEMS.register(EnderPorts.enderportsIcon)
 }
