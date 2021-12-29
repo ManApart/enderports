@@ -1,6 +1,6 @@
 package org.manapart.enderports
 
-import net.minecraft.item.Item
+import net.minecraft.world.item.Item
 import net.minecraftforge.fml.common.Mod
 import thedarkcolour.kotlinforforge.forge.MOD_BUS
 

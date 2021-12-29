@@ -1,37 +1,23 @@
 package org.manapart.enderports
 
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.nbt.ListNBT
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.server.ServerWorld
-import net.minecraft.world.storage.WorldSavedData
-import net.minecraftforge.common.util.Constants
+import net.minecraft.core.BlockPos
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.ListTag
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.saveddata.SavedData
 import java.util.function.Supplier
 
 const val DATA_NAME = MODID + "_TeleporterSaveData"
 
-class TeleporterNetwork(private val world: ServerWorld) : WorldSavedData(DATA_NAME) {
+class TeleporterNetwork(private val world: Level) : SavedData() {
     private val network = mutableMapOf<String, MutableSet<BlockPos>>()
 
-    override fun load(nbt: CompoundNBT) {
-        val nodes = nbt.getList("nodes", Constants.NBT.TAG_COMPOUND)
-        for (nodeI in nodes) {
-            val node = nodeI as CompoundNBT
-            val key = node.getString("key")
-            val x = node.getDouble("x")
-            val y = node.getDouble("y")
-            val z = node.getDouble("z")
-            val pos = BlockPos(x, y, z)
-            addTeleporter(key, pos)
-        }
-    }
-
-    override fun save(compound: CompoundNBT): CompoundNBT {
-        val cnbt = CompoundNBT()
-        val nodes = ListNBT()
+    override fun save(cnbt: CompoundTag): CompoundTag {
+        val nodes = ListTag()
         for (key in network.keys) {
             for (value in network[key]!!) {
-                val node = CompoundNBT()
+                val node = CompoundTag()
                 node.putString("key", key)
                 node.putDouble("x", value.x.toDouble())
                 node.putDouble("y", value.y.toDouble())
@@ -117,11 +103,27 @@ class TeleporterNetwork(private val world: ServerWorld) : WorldSavedData(DATA_NA
         return key == ModBlocks.teleporter.registryName.toString()
     }
 
-    internal class NetworkSupplier(private val world: ServerWorld) : Supplier<TeleporterNetwork> {
+    internal class NetworkSupplier(private val world: Level) : Supplier<TeleporterNetwork> {
         override fun get(): TeleporterNetwork = TeleporterNetwork(world)
     }
 }
 
-fun ServerWorld.getNetwork(): TeleporterNetwork {
-    return dataStorage.computeIfAbsent(TeleporterNetwork.NetworkSupplier(this), DATA_NAME)
+fun load(nbt: CompoundTag) : TeleporterNetwork{
+    val network = TeleporterNetwork()
+    val nodes = nbt.getList("nodes", Constants.NBT.TAG_COMPOUND)
+    for (nodeI in nodes) {
+        val node = nodeI as CompoundTag
+        val key = node.getString("key")
+        val x = node.getDouble("x")
+        val y = node.getDouble("y")
+        val z = node.getDouble("z")
+        val pos = BlockPos(x, y, z)
+        network.addTeleporter(key, pos)
+    }
+    return network
+}
+
+
+fun ServerLevel.getNetwork(): TeleporterNetwork {
+    return dataStorage.computeIfAbsent(::load, TeleporterNetwork.NetworkSupplier(this), DATA_NAME)
 }
