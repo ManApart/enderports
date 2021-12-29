@@ -1,5 +1,5 @@
 modLoader="kotlinforforge"
-loaderVersion="[1.15,)"
+loaderVersion="[3,)"
 license="Creative Commons Attribution-NonCommercial-NoDerivatives 4.0"
 issueTrackerURL="https://github.com/ManApart/enderports/issues"
 
@@ -16,6 +16,6 @@ issueTrackerURL="https://github.com/ManApart/enderports/issues"
 [[dependencies.lumberjack]]
     modId="forge"
     mandatory=true
-    versionRange="[36,)"
+    versionRange="[39,)"
     ordering="NONE"
     side="BOTH"
