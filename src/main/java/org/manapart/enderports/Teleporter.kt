@@ -23,8 +23,7 @@ private fun createProps(): BlockBehaviour.Properties {
     val padMat = Material.Builder(MaterialColor.COLOR_BLUE).build()
     val props = BlockBehaviour.Properties.of(padMat)
     props.sound(SoundType.METAL)
-//    props.requiresCorrectToolForDrops()
-//    props.harvestTool(ToolType.PICKAXE)
+    props.requiresCorrectToolForDrops()
     props.strength(4f)
     return props
 }

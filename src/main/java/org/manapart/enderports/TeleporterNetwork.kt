@@ -110,9 +110,9 @@ class TeleporterNetwork(private val world: Level) : SavedData() {
 
 fun load(nbt: CompoundTag, world: Level) : TeleporterNetwork{
     val network = TeleporterNetwork(world)
-    val nodes = nbt.getList("nodes", Constants.NBT.TAG_COMPOUND)
-    for (nodeI in nodes) {
-        val node = nodeI as CompoundTag
+    //Constants.NBT.TAG_COMPOUND - not sure where this constant lives now
+    nbt.getList("nodes", 10).forEach {
+        val node = it as CompoundTag
         val key = node.getString("key")
         val x = node.getDouble("x")
         val y = node.getDouble("y")
