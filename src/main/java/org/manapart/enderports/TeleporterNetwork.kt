@@ -34,7 +34,7 @@ class TeleporterNetwork(private val world: Level) : SavedData() {
         addTeleporter(beneathBlockName, pos)
     }
 
-    private fun addTeleporter(beneathBlockName: String, pos: BlockPos) {
+    internal fun addTeleporter(beneathBlockName: String, pos: BlockPos) {
 //        System.out.println("Adding teleporter with " + beneathBlockName);
         network.putIfAbsent(beneathBlockName, mutableSetOf())
         network[beneathBlockName]!!.add(pos)
@@ -108,8 +108,8 @@ class TeleporterNetwork(private val world: Level) : SavedData() {
     }
 }
 
-fun load(nbt: CompoundTag) : TeleporterNetwork{
-    val network = TeleporterNetwork()
+fun load(nbt: CompoundTag, world: Level) : TeleporterNetwork{
+    val network = TeleporterNetwork(world)
     val nodes = nbt.getList("nodes", Constants.NBT.TAG_COMPOUND)
     for (nodeI in nodes) {
         val node = nodeI as CompoundTag
@@ -125,5 +125,6 @@ fun load(nbt: CompoundTag) : TeleporterNetwork{
 
 
 fun ServerLevel.getNetwork(): TeleporterNetwork {
-    return dataStorage.computeIfAbsent(::load, TeleporterNetwork.NetworkSupplier(this), DATA_NAME)
+    val loadFunction = { nbt: CompoundTag -> load(nbt, this)}
+    return dataStorage.computeIfAbsent(loadFunction, TeleporterNetwork.NetworkSupplier(this), DATA_NAME)
 }

@@ -1,6 +1,7 @@
 package org.manapart.enderports
 
 import net.minecraft.core.BlockPos
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
@@ -32,7 +33,7 @@ class Teleporter : SlabBlock(createProps()) {
 
     override fun use(state: BlockState, world: Level, pos: BlockPos, player: Player, hand: InteractionHand, rayTraceResult: BlockHitResult): InteractionResult {
         if (!world.isClientSide) {
-            val nextPos = world.getNetwork().getNextTeleporter(pos)
+            val nextPos = (world as ServerLevel).getNetwork().getNextTeleporter(pos)
             if (pos != nextPos) {
                 val serverPlayer = player as ServerPlayer
                 serverPlayer.connection.teleport(nextPos.x + .5, (nextPos.y + 1).toDouble(), nextPos.z + .5, serverPlayer.yHeadRot, 0f)
@@ -45,7 +46,7 @@ class Teleporter : SlabBlock(createProps()) {
     override fun onPlace(state: BlockState, world: Level, pos: BlockPos, newState: BlockState, boolThing: Boolean) {
         super.onPlace(state, world, pos, newState, boolThing)
         if (!world.isClientSide) {
-            val network = world.getNetwork()
+            val network = (world as ServerLevel).getNetwork()
             network.reBalance()
             network.addTeleporter(pos)
         }
@@ -54,7 +55,7 @@ class Teleporter : SlabBlock(createProps()) {
     override fun onBlockExploded(state: BlockState, world: Level, pos: BlockPos, explosion: Explosion) {
         super.onBlockExploded(state, world, pos, explosion)
         if (!world.isClientSide) {
-            world.getNetwork().removeTeleporter(pos)
+            (world as ServerLevel).getNetwork().removeTeleporter(pos)
         }
     }
 
