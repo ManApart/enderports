@@ -14,8 +14,6 @@ object EnderPorts {
         ModItems.REGISTRY.register(MOD_BUS)
     }
 
-    val enderportsIcon = Item(Item.Properties()).also {
-        it.setRegistryName("$MODID:ep_icon")
-    }
+    val enderportsIcon = Item(Item.Properties())
 
 }

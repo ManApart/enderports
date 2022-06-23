@@ -96,11 +96,11 @@ class TeleporterNetwork(private val world: Level) : SavedData() {
         }
     }
 
-    private fun getKey(pos: BlockPos): String = world.getBlockState(pos.below()).block.registryName?.toString() ?: ""
+    private fun getKey(pos: BlockPos): String = world.getBlockState(pos.below()).block.descriptionId.toString() ?: ""
 
     private fun isTeleporter(pos: BlockPos): Boolean {
-        val key = world.getBlockState(pos).block.registryName?.toString() ?: ""
-        return key == ModBlocks.teleporter.registryName.toString()
+        val key = world.getBlockState(pos).block.descriptionId.toString()
+        return key == ModBlocks.teleporter.descriptionId.toString()
     }
 
     internal class NetworkSupplier(private val world: Level) : Supplier<TeleporterNetwork> {
