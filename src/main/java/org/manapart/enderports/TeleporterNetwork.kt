@@ -100,7 +100,7 @@ class TeleporterNetwork(private val world: Level) : SavedData() {
 
     private fun isTeleporter(pos: BlockPos): Boolean {
         val key = world.getBlockState(pos).block.descriptionId.toString()
-        return key == ModBlocks.teleporter.descriptionId.toString()
+        return key == ModBlocks.TELEPORTER_BLOCK.descriptionId.toString()
     }
 
     internal class NetworkSupplier(private val world: Level) : Supplier<TeleporterNetwork> {
