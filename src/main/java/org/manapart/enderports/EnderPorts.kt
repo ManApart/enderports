@@ -14,6 +14,6 @@ object EnderPorts {
         ModItems.REGISTRY.register(MOD_BUS)
     }
 
-    val enderportsIcon = Item(Item.Properties())
+    val icon = Item(Item.Properties())
 
 }
