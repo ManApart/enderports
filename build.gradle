@@ -59,6 +59,7 @@ dependencies {
 }
 
 jar {
+    finalizedBy('reobfJar')
     manifest {
         attributes([
             "Specification-Title": "Lumberjack",
