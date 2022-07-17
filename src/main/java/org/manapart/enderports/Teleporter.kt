@@ -1,10 +1,12 @@
 package org.manapart.enderports
 
 import net.minecraft.core.BlockPos
+import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
+import net.minecraft.util.RandomSource
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.entity.player.Player
@@ -32,6 +34,7 @@ class Teleporter : SlabBlock(createProps()) {
 
     override fun use(state: BlockState, world: Level, pos: BlockPos, player: Player, hand: InteractionHand, rayTraceResult: BlockHitResult): InteractionResult {
         if (!world.isClientSide) {
+            world.playSound(null, player.blockPosition(), SoundEvents.SHULKER_BULLET_HIT, SoundSource.PLAYERS, 1f, 1f)
             val nextPos = (world as ServerLevel).getNetwork().getNextTeleporter(pos)
             if (pos != nextPos) {
                 val serverPlayer = player as ServerPlayer
@@ -56,6 +59,18 @@ class Teleporter : SlabBlock(createProps()) {
         if (!world.isClientSide) {
             (world as ServerLevel).getNetwork().removeTeleporter(pos)
         }
+    }
+
+    override fun animateTick(p_220827_: BlockState, world: Level, pos: BlockPos, rand: RandomSource) {
+        val j = rand.nextInt(2) * 2 - 1
+        val k = rand.nextInt(2) * 2 - 1
+        val d0 = pos.x.toDouble() + 0.5 + 0.25 * j.toDouble()
+        val d1 = (pos.y.toFloat() + rand.nextFloat()).toDouble()
+        val d2 = pos.z.toDouble() + 0.5 + 0.25 * k.toDouble()
+        val d3 = (rand.nextFloat() * j.toFloat()).toDouble()
+        val d4 = (rand.nextFloat().toDouble() - 0.5) * 0.125
+        val d5 = (rand.nextFloat() * k.toFloat()).toDouble()
+        world.addParticle(ParticleTypes.PORTAL, d0, d1, d2, d3, d4, d5)
     }
 
 }
