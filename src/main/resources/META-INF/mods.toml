@@ -13,7 +13,7 @@ issueTrackerURL="https://github.com/ManApart/enderports/issues"
     '''
     credits="Simple teleporters"
 
-[[dependencies.lumberjack]]
+[[dependencies.enderports]]
     modId="forge"
     mandatory=true
     versionRange="[41,)"
