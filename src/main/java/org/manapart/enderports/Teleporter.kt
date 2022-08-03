@@ -34,12 +34,16 @@ class Teleporter : SlabBlock(createProps()) {
 
     override fun use(state: BlockState, world: Level, pos: BlockPos, player: Player, hand: InteractionHand, rayTraceResult: BlockHitResult): InteractionResult {
         if (!world.isClientSide) {
+            val start = System.currentTimeMillis()
             world.playSound(null, player.blockPosition(), SoundEvents.SHULKER_BULLET_HIT, SoundSource.PLAYERS, 1f, 1f)
             val nextPos = (world as ServerLevel).getNetwork().getNextTeleporter(pos)
             if (pos != nextPos) {
                 val serverPlayer = player as ServerPlayer
                 serverPlayer.connection.teleport(nextPos.x + .5, (nextPos.y + 1).toDouble(), nextPos.z + .5, serverPlayer.yHeadRot, 0f)
                 world.playSound(null, nextPos, SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1f, 1f)
+                println("Elapsed: " + (System.currentTimeMillis() - start))
+            } else {
+                world.playSound(null, player.blockPosition(), SoundEvents.ENDERMITE_HURT, SoundSource.PLAYERS, 1f, 1f)
             }
         }
         return InteractionResult.PASS

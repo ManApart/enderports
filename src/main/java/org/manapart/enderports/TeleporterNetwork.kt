@@ -4,9 +4,12 @@ import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.level.GameRules
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.saveddata.SavedData
+import net.minecraftforge.event.TickEvent
 import java.util.function.Supplier
+
 
 const val DATA_NAME = MODID + "_TeleporterSaveData"
 
@@ -79,28 +82,57 @@ class TeleporterNetwork(private val world: Level) : SavedData() {
 
     fun reBalance() {
         println("Rebalancing teleporter network.")
-        val staleTeleporters = mutableMapOf<String, MutableList<BlockPos>>()
-        network.entries.forEach { (beneathBlockName, posList) ->
-            posList.forEach { pos ->
-                if (getKey(pos) != beneathBlockName) {
-                    staleTeleporters.putIfAbsent(beneathBlockName, mutableListOf())
-                    staleTeleporters[beneathBlockName]!!.add(pos)
-                }
+        val oldNetwork = network.toMap()
+//        forceChunks(false)
+        network.clear()
+
+        oldNetwork.values.flatten().forEach { pos ->
+            //Is a valid teleporter
+            if (getKey(pos.above()) == "block.enderports.teleporter") {
+                val beneathBlockName = getKey(pos)
+                network.putIfAbsent(beneathBlockName, mutableSetOf())
+                network[beneathBlockName]!!.add(pos)
             }
         }
-        staleTeleporters.entries.forEach { (beneathBlockName, posList) ->
-            posList.forEach { pos ->
-                network[beneathBlockName]!!.remove(pos)
-                addTeleporter(pos)
-            }
+//        forceChunks(true)
+
+        println("Rebalance complete.")
+    }
+
+    private fun forceChunks(stayLoaded: Boolean) {
+        if (world is ServerLevel) {
+            val chunksUpdated = allTeleporterPositions()
+                .asSequence()
+                .map { world.setChunkForced(it.x, it.y, stayLoaded) }
+                .count()
+            println("Forced $chunksUpdated chunks")
         }
     }
 
-    private fun getKey(pos: BlockPos): String = world.getBlockState(pos.below()).block.descriptionId.toString() ?: ""
+
+    private fun getKey(pos: BlockPos): String {
+        return try {
+            val state = world.getBlockState(pos.below())
+            state.block.descriptionId.toString()
+        } catch (e: Exception) {
+            println("Unable to find teleporter key for $pos")
+            ""
+        }
+    }
+
+    fun allTeleporterPositions(): List<BlockPos> {
+        return network.values.flatten()
+    }
 
     private fun isTeleporter(pos: BlockPos): Boolean {
         val key = world.getBlockState(pos).block.descriptionId.toString()
         return key == ModBlocks.TELEPORTER_BLOCK.descriptionId.toString()
+    }
+
+    fun dumpText(): String {
+        return network.entries.joinToString("\n") { (blockId, positions) ->
+            blockId + "\n\t" + positions.joinToString(",") { "(${it.x},${it.y},${it.z})" }
+        }
     }
 
     internal class NetworkSupplier(private val world: Level) : Supplier<TeleporterNetwork> {
@@ -108,7 +140,7 @@ class TeleporterNetwork(private val world: Level) : SavedData() {
     }
 }
 
-fun load(nbt: CompoundTag, world: Level) : TeleporterNetwork{
+fun load(nbt: CompoundTag, world: Level): TeleporterNetwork {
     val network = TeleporterNetwork(world)
     //Constants.NBT.TAG_COMPOUND - not sure where this constant lives now
     nbt.getList("nodes", 10).forEach {
@@ -120,11 +152,40 @@ fun load(nbt: CompoundTag, world: Level) : TeleporterNetwork{
         val pos = BlockPos(x, y, z)
         network.addTeleporter(key, pos)
     }
+//    println("Teleport Network Loaded")
+//    println(network.dumpText())
     return network
 }
 
 
 fun ServerLevel.getNetwork(): TeleporterNetwork {
-    val loadFunction = { nbt: CompoundTag -> load(nbt, this)}
+    val loadFunction = { nbt: CompoundTag -> load(nbt, this) }
     return dataStorage.computeIfAbsent(loadFunction, TeleporterNetwork.NetworkSupplier(this), DATA_NAME)
+}
+
+private var currentTick = 0
+fun onTick(event: TickEvent.LevelTickEvent) {
+    if (event.phase !== TickEvent.Phase.END || event.level !is ServerLevel) return
+    currentTick++
+    if (currentTick < 200) return
+    currentTick = 0
+
+    val level = event.level as ServerLevel
+    val tickSpeed = level.gameRules.getInt(GameRules.RULE_RANDOMTICKING)
+    if (tickSpeed > 0) {
+        try {
+            val chunksUpdated = level.getNetwork().allTeleporterPositions()
+                .asSequence()
+                .map { level.getChunk(it).pos }.toSet()
+                .filter { level.chunkSource.chunkMap.getPlayers(it, false).isEmpty() }
+                .map { pos ->
+                    level.tickChunk(level.getChunk(pos.x, pos.z), tickSpeed)
+                    1
+                }.count()
+            println("Updated $chunksUpdated chunks")
+        } catch (e: Exception) {
+            println("Failed to tick teleporters!")
+            println(e)
+        }
+    }
 }
