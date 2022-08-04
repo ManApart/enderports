@@ -36,12 +36,18 @@ class Teleporter : SlabBlock(createProps()) {
         if (!world.isClientSide) {
             val start = System.currentTimeMillis()
             world.playSound(null, player.blockPosition(), SoundEvents.SHULKER_BULLET_HIT, SoundSource.PLAYERS, 1f, 1f)
-            val nextPos = (world as ServerLevel).getNetwork().getNextTeleporter(pos)
+            val network = (world as ServerLevel).getNetwork()
+            val nextPos = network.getNextTeleporter(pos)
             if (pos != nextPos) {
+                println("Elapsed Getting pos: " + (System.currentTimeMillis() - start))
+//                network.preloadSite(world, nextPos)
+//                println("Elapsed Preloading: " + (System.currentTimeMillis() - start))
                 val serverPlayer = player as ServerPlayer
-                serverPlayer.connection.teleport(nextPos.x + .5, (nextPos.y + 1).toDouble(), nextPos.z + .5, serverPlayer.yHeadRot, 0f)
+//                player.sendChatMessage("/tp ")
+                serverPlayer.teleportTo(world, nextPos.x + .5, (nextPos.y + 1).toDouble(), nextPos.z + .5, serverPlayer.yHeadRot, 0f)
                 world.playSound(null, nextPos, SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1f, 1f)
-                println("Elapsed: " + (System.currentTimeMillis() - start))
+                println("Elapsed Teleported: " + (System.currentTimeMillis() - start))
+                network.removeStaleLocations(nextPos)
             } else {
                 world.playSound(null, player.blockPosition(), SoundEvents.ENDERMITE_HURT, SoundSource.PLAYERS, 1f, 1f)
             }
