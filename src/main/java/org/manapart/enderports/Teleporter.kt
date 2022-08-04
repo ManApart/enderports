@@ -34,19 +34,17 @@ class Teleporter : SlabBlock(createProps()) {
 
     override fun use(state: BlockState, world: Level, pos: BlockPos, player: Player, hand: InteractionHand, rayTraceResult: BlockHitResult): InteractionResult {
         if (!world.isClientSide) {
-            val start = System.currentTimeMillis()
             world.playSound(null, player.blockPosition(), SoundEvents.SHULKER_BULLET_HIT, SoundSource.PLAYERS, 1f, 1f)
             val network = (world as ServerLevel).getNetwork()
             val nextPos = network.getNextTeleporter(pos)
             if (pos != nextPos) {
-                println("Elapsed Getting pos: " + (System.currentTimeMillis() - start))
-//                network.preloadSite(world, nextPos)
-//                println("Elapsed Preloading: " + (System.currentTimeMillis() - start))
                 val serverPlayer = player as ServerPlayer
-//                player.sendChatMessage("/tp ")
-                serverPlayer.teleportTo(world, nextPos.x + .5, (nextPos.y + 1).toDouble(), nextPos.z + .5, serverPlayer.yHeadRot, 0f)
+                val x = nextPos.x + .5
+                val y = nextPos.y + 1.0
+                val z = nextPos.z + .5
+                player.connection.teleport(x, y, z, serverPlayer.yHeadRot, 0f)
+                serverPlayer.teleportTo(world, x, y, z, serverPlayer.yHeadRot, 0f)
                 world.playSound(null, nextPos, SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1f, 1f)
-                println("Elapsed Teleported: " + (System.currentTimeMillis() - start))
                 network.removeStaleLocations(nextPos)
             } else {
                 world.playSound(null, player.blockPosition(), SoundEvents.ENDERMITE_HURT, SoundSource.PLAYERS, 1f, 1f)

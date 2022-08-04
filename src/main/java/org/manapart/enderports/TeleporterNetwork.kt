@@ -37,14 +37,12 @@ class TeleporterNetwork(private val world: Level) : SavedData() {
     }
 
     internal fun addTeleporter(beneathBlockName: String, pos: BlockPos) {
-//        System.out.println("Adding teleporter with " + beneathBlockName);
         network.putIfAbsent(beneathBlockName, mutableSetOf())
         network[beneathBlockName]!!.add(pos)
         setDirty()
     }
 
     fun removeTeleporter(pos: BlockPos) {
-        //        System.out.println("Removing teleporter with " + beneathBlockName);
         val beneathBlockName = getKey(pos)
         if (network.containsKey(beneathBlockName) && network[beneathBlockName]!!.contains(pos)) {
             network[beneathBlockName]!!.remove(pos)
