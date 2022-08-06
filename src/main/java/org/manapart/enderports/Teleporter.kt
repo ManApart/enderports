@@ -26,7 +26,7 @@ private fun createProps(): BlockBehaviour.Properties {
     val props = BlockBehaviour.Properties.of(padMat)
     props.sound(SoundType.METAL)
     props.requiresCorrectToolForDrops()
-    props.strength(4f)
+    props.strength(1f)
     return props
 }
 
