@@ -13,7 +13,7 @@ const val DATA_NAME = MODID + "_TeleporterSaveData"
 
 class TeleporterNetwork(private val world: Level) : SavedData() {
     private val network = mutableMapOf<String, MutableSet<BlockPos>>()
-    private val teleporterChain = mutableMapOf<BlockPos, BlockPos>()
+    private var teleporterChain = mapOf<BlockPos, BlockPos>()
 
     override fun save(cnbt: CompoundTag): CompoundTag {
         val nodes = ListTag()
@@ -38,65 +38,74 @@ class TeleporterNetwork(private val world: Level) : SavedData() {
 
     internal fun addTeleporter(beneathBlockName: String, pos: BlockPos) {
         network.putIfAbsent(beneathBlockName, mutableSetOf())
-        network[beneathBlockName]!!.add(pos)
+        network[beneathBlockName]?.add(pos)
+        buildTeleporterChain()
         setDirty()
     }
 
     fun removeTeleporter(pos: BlockPos) {
         val beneathBlockName = getKey(pos)
-        if (network.containsKey(beneathBlockName) && network[beneathBlockName]!!.contains(pos)) {
-            network[beneathBlockName]!!.remove(pos)
+        if (network.containsKey(beneathBlockName) && network[beneathBlockName]?.contains(pos) == true) {
+            network[beneathBlockName]?.remove(pos)
+            buildTeleporterChain()
+            setDirty()
+            reBalance(beneathBlockName)
         }
-        setDirty()
     }
 
     fun getNextTeleporter(pos: BlockPos): BlockPos {
-        return getNextTeleporterWithRetry(pos, true)
-    }
-
-    private fun getNextTeleporterWithRetry(pos: BlockPos, retry: Boolean): BlockPos {
-        val next = teleporterChain[pos]
-        if (next == null && retry) {
-            reBalance()
-            return getNextTeleporterWithRetry(pos, false)
-        }
-        return next ?: pos
+        return teleporterChain[pos] ?: pos
     }
 
     //In the case we teleport someone to a stale location, at least remove it so it doesn't happen again
-    fun removeStaleLocations(pos: BlockPos) {
+    fun removeStaleLocation(pos: BlockPos) {
         if (!isTeleporter(pos)) {
             removeTeleporter(pos)
         }
     }
 
-    fun reBalance() {
-        println("Balancing teleporter network.")
-        val oldNetwork = network.toMap()
-        network.clear()
+    private fun reBalance(key: String) {
+        println("Balancing teleporter network for $key.")
 
-        //Rebuild only valid teleporters
-        oldNetwork.values.flatten().forEach { pos ->
-            if (isTeleporter(pos)) {
-                val beneathBlockName = getKey(pos)
-                addTeleporter(beneathBlockName, pos)
-                println("Added $pos")
+        if (network[key] != null) {
+            val validSpots = network[key]?.filter { isTeleporter(it) }?.toMutableSet() ?: mutableSetOf()
+            if (validSpots != network[key]) {
+                network[key] = validSpots
+                buildTeleporterChain()
+                setDirty()
             }
         }
-
-        buildTeleporterChain()
 
         println("Rebalance complete.")
     }
+//    private fun reBalance(key: String) {
+//        println("Balancing teleporter network.")
+//        val oldNetwork = network.toMap()
+//        network.clear()
+//
+//        //Rebuild only valid teleporters
+//        oldNetwork.values.flatten().forEach { pos ->
+//            if (isTeleporter(pos)) {
+//                val beneathBlockName = getKey(pos)
+//                addTeleporter(beneathBlockName, pos)
+//                println("Added $pos")
+//            }
+//        }
+//
+//        buildTeleporterChain()
+//
+//        println("Rebalance complete.")
+//    }
 
     internal fun buildTeleporterChain() {
-        teleporterChain.clear()
+        val newChain = mutableMapOf<BlockPos, BlockPos>()
         network.values.map { it.toList() }.forEach { chain ->
             (0 until chain.size - 1).forEach { i ->
-                teleporterChain[chain[i]] = chain[i + 1]
+                newChain[chain[i]] = chain[i + 1]
             }
-            teleporterChain[chain.last()] = chain.first()
+            newChain[chain.last()] = chain.first()
         }
+        teleporterChain = newChain
     }
 
 

@@ -45,7 +45,7 @@ class Teleporter : SlabBlock(createProps()) {
                 player.connection.teleport(x, y, z, serverPlayer.yHeadRot, 0f)
                 serverPlayer.teleportTo(world, x, y, z, serverPlayer.yHeadRot, 0f)
                 world.playSound(null, nextPos, SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1f, 1f)
-                network.removeStaleLocations(nextPos)
+                network.removeStaleLocation(nextPos)
             } else {
                 world.playSound(null, player.blockPosition(), SoundEvents.ENDERMITE_HURT, SoundSource.PLAYERS, 1f, 1f)
             }
@@ -57,8 +57,14 @@ class Teleporter : SlabBlock(createProps()) {
         super.onPlace(state, world, pos, newState, boolThing)
         if (!world.isClientSide) {
             val network = (world as ServerLevel).getNetwork()
-            network.reBalance()
             network.addTeleporter(pos)
+        }
+    }
+
+    override fun onRemove(state: BlockState, world: Level, pos: BlockPos, p_60518_: BlockState, p_60519_: Boolean) {
+        super.onRemove(state, world, pos, p_60518_, p_60519_)
+        if (!world.isClientSide) {
+            (world as ServerLevel).getNetwork().removeTeleporter(pos)
         }
     }
 
