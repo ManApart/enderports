@@ -37,17 +37,19 @@ class Teleporter : SlabBlock(createProps()) {
             world.playSound(null, player.blockPosition(), SoundEvents.SHULKER_BULLET_HIT, SoundSource.PLAYERS, 1f, 1f)
             val network = (world as ServerLevel).getNetwork()
             val nextPos = network.getNextTeleporter(pos)
-            if (pos != nextPos) {
+            return if (pos != nextPos) {
                 val serverPlayer = player as ServerPlayer
                 val x = nextPos.x + .5
                 val y = nextPos.y + 1.0
                 val z = nextPos.z + .5
-                player.connection.teleport(x, y, z, serverPlayer.yHeadRot, 0f)
+//                player.connection.teleport(x, y, z, serverPlayer.yHeadRot, 0f)
                 serverPlayer.teleportTo(world, x, y, z, serverPlayer.yHeadRot, 0f)
                 world.playSound(null, nextPos, SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1f, 1f)
                 network.removeStaleLocation(nextPos)
+                InteractionResult.SUCCESS
             } else {
                 world.playSound(null, player.blockPosition(), SoundEvents.ENDERMITE_HURT, SoundSource.PLAYERS, 1f, 1f)
+                InteractionResult.FAIL
             }
         }
         return InteractionResult.PASS

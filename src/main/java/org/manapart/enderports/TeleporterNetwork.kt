@@ -78,24 +78,6 @@ class TeleporterNetwork(private val world: Level) : SavedData() {
 
         println("Rebalance complete.")
     }
-//    private fun reBalance(key: String) {
-//        println("Balancing teleporter network.")
-//        val oldNetwork = network.toMap()
-//        network.clear()
-//
-//        //Rebuild only valid teleporters
-//        oldNetwork.values.flatten().forEach { pos ->
-//            if (isTeleporter(pos)) {
-//                val beneathBlockName = getKey(pos)
-//                addTeleporter(beneathBlockName, pos)
-//                println("Added $pos")
-//            }
-//        }
-//
-//        buildTeleporterChain()
-//
-//        println("Rebalance complete.")
-//    }
 
     internal fun buildTeleporterChain() {
         val newChain = mutableMapOf<BlockPos, BlockPos>()
