@@ -12,17 +12,20 @@ import net.minecraft.world.InteractionResult
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.Explosion
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.ChestBlock
 import net.minecraft.world.level.block.EntityBlock
 import net.minecraft.world.level.block.SlabBlock
 import net.minecraft.world.level.block.SoundType
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityTicker
 import net.minecraft.world.level.block.entity.BlockEntityType
+import net.minecraft.world.level.block.entity.ChestBlockEntity
 import net.minecraft.world.level.block.state.BlockBehaviour
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.material.Material
 import net.minecraft.world.level.material.MaterialColor
 import net.minecraft.world.phys.BlockHitResult
+import org.manapart.enderports.ModEntities.ENDERPOT_BLOCK_ENTITY
 
 
 private fun createProps(): BlockBehaviour.Properties {
@@ -37,6 +40,14 @@ private fun createProps(): BlockBehaviour.Properties {
 class Teleporter : SlabBlock(createProps()), EntityBlock {
     override fun newBlockEntity(pos: BlockPos, state: BlockState): BlockEntity = TeleporterEntity(pos, state)
 
+    override fun <T : BlockEntity?> getTicker(world: Level, state: BlockState, type: BlockEntityType<T>): BlockEntityTicker<T>? {
+        return if (world.isClientSide) {
+            super.getTicker(world, state, type)
+        } else {
+            TeleportTicker() as BlockEntityTicker<T>
+        }
+    }
+
     override fun use(state: BlockState, world: Level, pos: BlockPos, player: Player, hand: InteractionHand, rayTraceResult: BlockHitResult): InteractionResult {
         if (!world.isClientSide) {
             val start = System.currentTimeMillis()
@@ -49,13 +60,10 @@ class Teleporter : SlabBlock(createProps()), EntityBlock {
                 val y = nextPos.y + 1.0
                 val z = nextPos.z + .5
                 (world.getBlockEntity(pos) as TeleporterEntity?)?.nextPos = nextPos
-                world.blockEntityChanged(pos)
-                world.blockUpdated(pos, this)
-                world.sendBlockUpdated(pos, state, state, 3)
-//                player.connection.teleport(x, y, z, serverPlayer.yHeadRot, 0f)
-//                world.playSound(null, nextPos, SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1f, 1f)
-//                network.removeStaleLocation(nextPos)
-//                println("Teleported ${player.name.string} from $pos to $nextPos in " + (System.currentTimeMillis() - start))
+                player.connection.teleport(x, y, z, serverPlayer.yHeadRot, 0f)
+                world.playSound(null, nextPos, SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1f, 1f)
+                network.removeStaleLocation(nextPos)
+                println("Teleported ${player.name.string} from $pos to $nextPos in " + (System.currentTimeMillis() - start))
                 InteractionResult.SUCCESS
             } else {
                 world.playSound(null, player.blockPosition(), SoundEvents.ENDERMITE_HURT, SoundSource.PLAYERS, 1f, 1f)
@@ -64,7 +72,7 @@ class Teleporter : SlabBlock(createProps()), EntityBlock {
         } else {
             val nextPos = (world.getBlockEntity(pos) as TeleporterEntity?)?.nextPos?.above() ?: pos
             println(nextPos)
-//            player.moveTo(nextPos, player.yHeadRot, 0f)
+            player.moveTo(nextPos, player.yHeadRot, 0f)
         }
         return InteractionResult.PASS
     }

@@ -16,7 +16,7 @@ object ModEntities {
 
 }
 
-internal fun createEntityType(): BlockEntityType<TeleporterEntity> {
+private fun createEntityType(): BlockEntityType<TeleporterEntity> {
     return BlockEntityType.Builder.of({ pos, state -> TeleporterEntity(pos, state) }, TELEPORTER_BLOCK)
         .build(null)
 }
