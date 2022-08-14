@@ -12,8 +12,10 @@ import net.minecraft.world.InteractionResult
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.Explosion
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.EntityBlock
 import net.minecraft.world.level.block.SlabBlock
 import net.minecraft.world.level.block.SoundType
+import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.BlockBehaviour
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.material.Material
@@ -30,7 +32,8 @@ private fun createProps(): BlockBehaviour.Properties {
     return props
 }
 
-class Teleporter : SlabBlock(createProps()) {
+class Teleporter : SlabBlock(createProps()), EntityBlock {
+    override fun newBlockEntity(pos: BlockPos, state: BlockState): BlockEntity = TeleporterEntity(pos, state)
 
     override fun use(state: BlockState, world: Level, pos: BlockPos, player: Player, hand: InteractionHand, rayTraceResult: BlockHitResult): InteractionResult {
         if (!world.isClientSide) {
@@ -52,6 +55,10 @@ class Teleporter : SlabBlock(createProps()) {
                 world.playSound(null, player.blockPosition(), SoundEvents.ENDERMITE_HURT, SoundSource.PLAYERS, 1f, 1f)
                 InteractionResult.FAIL
             }
+        } else {
+            val nextPos = (world.getBlockEntity(pos) as TeleporterEntity?)?.nextPos?.above() ?: pos
+            println(nextPos)
+            player.moveTo(nextPos, player.yHeadRot, 0f)
         }
         return InteractionResult.PASS
     }
