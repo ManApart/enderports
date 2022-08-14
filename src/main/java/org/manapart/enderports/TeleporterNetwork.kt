@@ -65,7 +65,8 @@ class TeleporterNetwork(private val world: Level) : SavedData() {
     }
 
     private fun reBalance(key: String) {
-        println("Balancing teleporter network for $key.")
+        println("Balancing teleporter network for $key")
+        val start = System.currentTimeMillis()
 
         if (network[key] != null) {
             val validSpots = network[key]?.filter { isTeleporter(it) }?.toMutableSet() ?: mutableSetOf()
@@ -76,7 +77,7 @@ class TeleporterNetwork(private val world: Level) : SavedData() {
             }
         }
 
-        println("Rebalance complete.")
+        println("Rebalance complete in "+ (System.currentTimeMillis() - start))
     }
 
     internal fun buildTeleporterChain() {
@@ -134,7 +135,6 @@ fun load(nbt: CompoundTag, world: Level): TeleporterNetwork {
 //    println(network.dumpText())
     return network
 }
-
 
 fun ServerLevel.getNetwork(): TeleporterNetwork {
     val loadFunction = { nbt: CompoundTag -> load(nbt, this) }
