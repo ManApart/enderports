@@ -16,6 +16,8 @@ import net.minecraft.world.level.block.EntityBlock
 import net.minecraft.world.level.block.SlabBlock
 import net.minecraft.world.level.block.SoundType
 import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityTicker
+import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockBehaviour
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.material.Material
@@ -46,10 +48,14 @@ class Teleporter : SlabBlock(createProps()), EntityBlock {
                 val x = nextPos.x + .5
                 val y = nextPos.y + 1.0
                 val z = nextPos.z + .5
-                player.connection.teleport(x, y, z, serverPlayer.yHeadRot, 0f)
-                world.playSound(null, nextPos, SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1f, 1f)
-                network.removeStaleLocation(nextPos)
-                println("Teleported ${player.name.string} from $pos to $nextPos in " + (System.currentTimeMillis() - start))
+                (world.getBlockEntity(pos) as TeleporterEntity?)?.nextPos = nextPos
+                world.blockEntityChanged(pos)
+                world.blockUpdated(pos, this)
+                world.sendBlockUpdated(pos, state, state, 3)
+//                player.connection.teleport(x, y, z, serverPlayer.yHeadRot, 0f)
+//                world.playSound(null, nextPos, SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1f, 1f)
+//                network.removeStaleLocation(nextPos)
+//                println("Teleported ${player.name.string} from $pos to $nextPos in " + (System.currentTimeMillis() - start))
                 InteractionResult.SUCCESS
             } else {
                 world.playSound(null, player.blockPosition(), SoundEvents.ENDERMITE_HURT, SoundSource.PLAYERS, 1f, 1f)
@@ -58,7 +64,7 @@ class Teleporter : SlabBlock(createProps()), EntityBlock {
         } else {
             val nextPos = (world.getBlockEntity(pos) as TeleporterEntity?)?.nextPos?.above() ?: pos
             println(nextPos)
-            player.moveTo(nextPos, player.yHeadRot, 0f)
+//            player.moveTo(nextPos, player.yHeadRot, 0f)
         }
         return InteractionResult.PASS
     }
