@@ -14,15 +14,19 @@ import net.minecraft.world.level.block.state.BlockState
 import org.manapart.enderports.ModEntities.ENDERPOT_BLOCK_ENTITY
 
 class TeleportTicker : BlockEntityTicker<TeleporterEntity> {
+    private var tick = 0
     override fun tick(level: Level, pos: BlockPos, state: BlockState, tp: TeleporterEntity) {
-        if (level is ServerLevel) {
-            tp.updateNextPos(level)
+        tick++
+        if (tick > 200) {
+            tick = 0
+            if (level is ServerLevel) {
+                tp.updateNextPos(level)
+            }
         }
     }
 }
 
 class TeleporterEntity(private val pos: BlockPos, private val state: BlockState) : BlockEntity(ENDERPOT_BLOCK_ENTITY, pos, state) {
-    private var tick = 0
     var nextPos = BlockPos(pos.x, 400, pos.y)
 
     override fun getUpdatePacket(): Packet<ClientGamePacketListener>? {
@@ -50,14 +54,10 @@ class TeleporterEntity(private val pos: BlockPos, private val state: BlockState)
     }
 
     fun updateNextPos(level: ServerLevel) {
-        tick++
-        if (tick > 10) {
-            tick = 0
-            nextPos = level.getNetwork().getNextTeleporter(pos)
+        nextPos = level.getNetwork().getNextTeleporter(pos)
 
-            level.blockEntityChanged(pos)
-            level.sendBlockUpdated(pos, state, state, 3)
-        }
+        level.blockEntityChanged(pos)
+        level.sendBlockUpdated(pos, state, state, 3)
     }
 
 }
