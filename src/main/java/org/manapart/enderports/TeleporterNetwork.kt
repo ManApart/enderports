@@ -91,7 +91,6 @@ class TeleporterNetwork(private val world: Level) : SavedData() {
         teleporterChain = newChain
     }
 
-
     private fun getKey(pos: BlockPos): String {
         return try {
             val state = world.getBlockState(pos.below())

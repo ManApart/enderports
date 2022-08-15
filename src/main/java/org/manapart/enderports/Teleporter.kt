@@ -71,6 +71,7 @@ class Teleporter : SlabBlock(createProps()), EntityBlock {
             }
         } else {
             val nextPos = (world.getBlockEntity(pos) as TeleporterEntity?)?.nextPos?.above() ?: pos
+            println("Client TP: $nextPos")
             player.moveTo(nextPos, player.yHeadRot, 0f)
         }
         return InteractionResult.PASS

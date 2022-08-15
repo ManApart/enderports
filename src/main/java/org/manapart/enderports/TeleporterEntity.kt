@@ -17,7 +17,7 @@ class TeleportTicker : BlockEntityTicker<TeleporterEntity> {
     private var tick = 0
     override fun tick(level: Level, pos: BlockPos, state: BlockState, tp: TeleporterEntity) {
         tick++
-        if (tick > 200) {
+        if (tick > 20) {
             tick = 0
             if (level is ServerLevel) {
                 tp.updateNextPos(level)
@@ -50,6 +50,7 @@ class TeleporterEntity(private val pos: BlockPos, private val state: BlockState)
                 val z = getDouble("z")
                 nextPos = BlockPos(x, y, z)
             }
+//            println("received $nextPos")
         }
     }
 
