@@ -45,9 +45,9 @@ class TeleporterEntity(private val pos: BlockPos, private val state: BlockState)
         super.onDataPacket(net, pkt)
         if (pkt != null) {
             with(pkt.tag!!) {
-                val x = getDouble("x")
-                val y = getDouble("y")
-                val z = getDouble("z")
+                val x = getDouble("x").toInt()
+                val y = getDouble("y").toInt()
+                val z = getDouble("z").toInt()
                 nextPos = BlockPos(x, y, z)
             }
 //            println("received $nextPos")

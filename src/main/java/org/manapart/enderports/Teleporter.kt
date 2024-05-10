@@ -12,25 +12,19 @@ import net.minecraft.world.InteractionResult
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.Explosion
 import net.minecraft.world.level.Level
-import net.minecraft.world.level.block.ChestBlock
 import net.minecraft.world.level.block.EntityBlock
 import net.minecraft.world.level.block.SlabBlock
 import net.minecraft.world.level.block.SoundType
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityTicker
 import net.minecraft.world.level.block.entity.BlockEntityType
-import net.minecraft.world.level.block.entity.ChestBlockEntity
 import net.minecraft.world.level.block.state.BlockBehaviour
 import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.level.material.Material
-import net.minecraft.world.level.material.MaterialColor
 import net.minecraft.world.phys.BlockHitResult
-import org.manapart.enderports.ModEntities.ENDERPOT_BLOCK_ENTITY
 
 
 private fun createProps(): BlockBehaviour.Properties {
-    val padMat = Material.Builder(MaterialColor.COLOR_BLUE).build()
-    val props = BlockBehaviour.Properties.of(padMat)
+    val props = BlockBehaviour.Properties.of()
     props.sound(SoundType.METAL)
     props.requiresCorrectToolForDrops()
     props.strength(4f)

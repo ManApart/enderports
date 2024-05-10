@@ -123,9 +123,9 @@ fun load(nbt: CompoundTag, world: Level): TeleporterNetwork {
     nbt.getList("nodes", 10).forEach {
         val node = it as CompoundTag
         val key = node.getString("key")
-        val x = node.getDouble("x")
-        val y = node.getDouble("y")
-        val z = node.getDouble("z")
+        val x = node.getDouble("x").toInt()
+        val y = node.getDouble("y").toInt()
+        val z = node.getDouble("z").toInt()
         val pos = BlockPos(x, y, z)
         network.addTeleporter(key, pos)
     }
