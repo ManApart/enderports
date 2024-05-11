@@ -20,7 +20,7 @@ object EnderPorts {
         MOD_BUS.addListener(::buildContents)
     }
 
-    fun buildContents(event: BuildCreativeModeTabContentsEvent) {
+    private fun buildContents(event: BuildCreativeModeTabContentsEvent) {
         if (event.tabKey == CreativeModeTabs.REDSTONE_BLOCKS) {
             event.accept(TELEPORT_ITEM)
             event.accept(TELEPORTER_BLOCK)
