@@ -5,13 +5,13 @@ import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
 import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
+import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.Item
 
 object ModItems {
     fun initialize() {}
     val TELEPORT_ITEM = register(teleporterBlockId) {
-//        TeleporterItem(ModBlocks.TELEPORTER_BLOCK)
-        Item(it)
+        BlockItem(ModBlocks.TELEPORTER_BLOCK, it)
     }
 
     fun <GenericItem : Item> register(name: String, settings: Item.Properties = Item.Properties(), itemFactory: (Item.Properties) -> GenericItem): GenericItem {
