@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "enderports:teleporteritem"
+          "name": "enderports:teleporter"
         }
       ],
       "conditions": [

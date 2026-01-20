@@ -7,24 +7,14 @@
     "RRR"
   ],
   "key": {
-    "#": {
-      "item": "minecraft:glass"
-    },
-    "I": {
-      "item": "minecraft:iron_block"
-    },
-    "R": {
-      "item": "minecraft:redstone_block"
-    },
-    "D": {
-      "item": "minecraft:diamond"
-    },
-    "P": {
-      "item": "minecraft:ender_pearl"
-    }
+    "#": "minecraft:glass",
+    "I": "minecraft:iron_block",
+    "R": "minecraft:redstone_block",
+    "D": "minecraft:diamond",
+    "P": "minecraft:ender_pearl"
   },
   "result": {
-    "item": "enderports:teleporteritem",
+    "id": "enderports:teleporter",
     "count": 2
   }
 }
