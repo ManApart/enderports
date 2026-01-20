@@ -135,7 +135,8 @@ class TeleporterNetwork(private val world: Level) : SavedData() {
 //    return network
 //}
 //
-//fun ServerLevel.getNetwork(): TeleporterNetwork {
+fun ServerLevel.getNetwork(): TeleporterNetwork {
 //    val loadFunction = { nbt: CompoundTag -> load(nbt, this) }
 //    return dataStorage.computeIfAbsent(loadFunction, TeleporterNetwork.NetworkSupplier(this), DATA_NAME)
-//}
+    return TeleporterNetwork(this)
+}

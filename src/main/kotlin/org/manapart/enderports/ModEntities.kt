@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType
 object ModEntities {
     fun initialize() {}
 
-    val ENDERPOT_BLOCK_ENTITY = register<TeleporterEntity>("teleporter_entity", ModBlocks.TELEPORTER_BLOCK) { pos, state ->
+    val ENDERPORT_BLOCK_ENTITY = register<TeleporterEntity>("teleporter_entity", ModBlocks.TELEPORTER_BLOCK) { pos, state ->
         TeleporterEntity(pos, state)
     }
 

@@ -1,8 +1,6 @@
 package org.manapart.enderports
 
 import net.minecraft.core.BlockPos
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.network.Connection
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket
@@ -11,7 +9,7 @@ import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityTicker
 import net.minecraft.world.level.block.state.BlockState
-import org.manapart.enderports.ModEntities.ENDERPOT_BLOCK_ENTITY
+import org.manapart.enderports.ModEntities.ENDERPORT_BLOCK_ENTITY
 
 class TeleportTicker : BlockEntityTicker<TeleporterEntity> {
     private var tick = 0
@@ -26,7 +24,7 @@ class TeleportTicker : BlockEntityTicker<TeleporterEntity> {
     }
 }
 
-class TeleporterEntity(private val pos: BlockPos, private val state: BlockState) : BlockEntity(ENDERPOT_BLOCK_ENTITY, pos, state) {
+class TeleporterEntity(private val pos: BlockPos, private val state: BlockState) : BlockEntity(ENDERPORT_BLOCK_ENTITY, pos, state) {
     var nextPos = BlockPos(pos.x, 400, pos.y)
 
     override fun getUpdatePacket(): Packet<ClientGamePacketListener>? {
