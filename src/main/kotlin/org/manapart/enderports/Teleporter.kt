@@ -10,6 +10,7 @@ import net.minecraft.util.RandomSource
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.LevelAccessor
 import net.minecraft.world.level.block.EntityBlock
 import net.minecraft.world.level.block.SlabBlock
 import net.minecraft.world.level.block.SoundType
@@ -71,33 +72,19 @@ class Teleporter(props: Properties) : SlabBlock(props), EntityBlock {
         return InteractionResult.PASS
     }
 
-//    override fun use(state: BlockState, world: Level, pos: BlockPos, player: Player, hand: InteractionHand, rayTraceResult: BlockHitResult): InteractionResult {
+    override fun onPlace(blockState: BlockState, level: Level, pos: BlockPos, blockState2: BlockState, bl: Boolean) {
+        super.onPlace(blockState, level, pos, blockState2, bl)
+        if (!level.isClientSide) {
+            (level as ServerLevel).getNetwork().addTeleporter(pos)
+        }
+    }
 
-//    }
-//
-//    override fun onPlace(state: BlockState, world: Level, pos: BlockPos, newState: BlockState, boolThing: Boolean) {
-//        super.onPlace(state, world, pos, newState, boolThing)
-//        if (!world.isClientSide) {
-//            val network = (world as ServerLevel).getNetwork()
-//            network.addTeleporter(pos)
-//        }
-//    }
-//
-//    override fun onRemove(state: BlockState, world: Level, pos: BlockPos, p_60518_: BlockState, p_60519_: Boolean) {
-//        super.onRemove(state, world, pos, p_60518_, p_60519_)
-//        if (!world.isClientSide) {
-//            (world as ServerLevel).getNetwork().removeTeleporter(pos)
-//        }
-//    }
-//
-//    override fun onBlockExploded(state: BlockState, world: Level, pos: BlockPos, explosion: Explosion) {
-//        super.onBlockExploded(state, world, pos, explosion)
-//        if (!world.isClientSide) {
-//            (world as ServerLevel).getNetwork().removeTeleporter(pos)
-//        }
-//    }
-//
-
+    override fun destroy(level: LevelAccessor, blockPos: BlockPos, blockState: BlockState) {
+        super.destroy(level, blockPos, blockState)
+        if (!level.isClientSide) {
+            (level as ServerLevel).getNetwork().removeTeleporter(blockPos)
+        }
+    }
 
     override fun animateTick(blockState: BlockState, level: Level, pos: BlockPos, rand: RandomSource) {
         val j = rand.nextInt(2) * 2 - 1
@@ -110,5 +97,4 @@ class Teleporter(props: Properties) : SlabBlock(props), EntityBlock {
         val d5 = (rand.nextFloat() * k.toFloat()).toDouble()
         level.addParticle(ParticleTypes.PORTAL, d0, d1, d2, d3, d4, d5)
     }
-
 }
