@@ -15,21 +15,21 @@ class TeleporterNetwork(private val world: Level) : SavedData() {
     private val network = mutableMapOf<String, MutableSet<BlockPos>>()
     private var teleporterChain = mapOf<BlockPos, BlockPos>()
 
-    override fun save(cnbt: CompoundTag): CompoundTag {
-        val nodes = ListTag()
-        for (key in network.keys) {
-            for (value in network[key]!!) {
-                val node = CompoundTag()
-                node.putString("key", key)
-                node.putDouble("x", value.x.toDouble())
-                node.putDouble("y", value.y.toDouble())
-                node.putDouble("z", value.z.toDouble())
-                nodes.add(node)
-            }
-        }
-        cnbt.put("nodes", nodes)
-        return cnbt
-    }
+//    override fun save(cnbt: CompoundTag): CompoundTag {
+//        val nodes = ListTag()
+//        for (key in network.keys) {
+//            for (value in network[key]!!) {
+//                val node = CompoundTag()
+//                node.putString("key", key)
+//                node.putDouble("x", value.x.toDouble())
+//                node.putDouble("y", value.y.toDouble())
+//                node.putDouble("z", value.z.toDouble())
+//                nodes.add(node)
+//            }
+//        }
+//        cnbt.put("nodes", nodes)
+//        return cnbt
+//    }
 
     fun addTeleporter(pos: BlockPos) {
         val beneathBlockName = getKey(pos)
@@ -117,25 +117,25 @@ class TeleporterNetwork(private val world: Level) : SavedData() {
     }
 }
 
-fun load(nbt: CompoundTag, world: Level): TeleporterNetwork {
-    val network = TeleporterNetwork(world)
-    //Constants.NBT.TAG_COMPOUND - not sure where this constant lives now
-    nbt.getList("nodes", 10).forEach {
-        val node = it as CompoundTag
-        val key = node.getString("key")
-        val x = node.getDouble("x").toInt()
-        val y = node.getDouble("y").toInt()
-        val z = node.getDouble("z").toInt()
-        val pos = BlockPos(x, y, z)
-        network.addTeleporter(key, pos)
-    }
-    network.buildTeleporterChain()
-//    println("Teleport Network Loaded")
-//    println(network.dumpText())
-    return network
-}
-
-fun ServerLevel.getNetwork(): TeleporterNetwork {
-    val loadFunction = { nbt: CompoundTag -> load(nbt, this) }
-    return dataStorage.computeIfAbsent(loadFunction, TeleporterNetwork.NetworkSupplier(this), DATA_NAME)
-}
+//fun load(nbt: CompoundTag, world: Level): TeleporterNetwork {
+//    val network = TeleporterNetwork(world)
+//    //Constants.NBT.TAG_COMPOUND - not sure where this constant lives now
+//    nbt.getList("nodes", 10).forEach {
+//        val node = it as CompoundTag
+//        val key = node.getString("key")
+//        val x = node.getDouble("x").toInt()
+//        val y = node.getDouble("y").toInt()
+//        val z = node.getDouble("z").toInt()
+//        val pos = BlockPos(x, y, z)
+//        network.addTeleporter(key, pos)
+//    }
+//    network.buildTeleporterChain()
+////    println("Teleport Network Loaded")
+////    println(network.dumpText())
+//    return network
+//}
+//
+//fun ServerLevel.getNetwork(): TeleporterNetwork {
+//    val loadFunction = { nbt: CompoundTag -> load(nbt, this) }
+//    return dataStorage.computeIfAbsent(loadFunction, TeleporterNetwork.NetworkSupplier(this), DATA_NAME)
+//}

@@ -20,7 +20,7 @@ class TeleportTicker : BlockEntityTicker<TeleporterEntity> {
         if (tick > 20) {
             tick = 0
             if (level is ServerLevel) {
-                tp.updateNextPos(level)
+//                tp.updateNextPos(level)
             }
         }
     }
@@ -33,32 +33,32 @@ class TeleporterEntity(private val pos: BlockPos, private val state: BlockState)
         return ClientboundBlockEntityDataPacket.create(this)
     }
 
-    override fun getUpdateTag(): CompoundTag {
-        return CompoundTag().apply {
-            putDouble("x", nextPos.x.toDouble())
-            putDouble("y", nextPos.y.toDouble())
-            putDouble("z", nextPos.z.toDouble())
-        }
-    }
+//    override fun getUpdateTag(): CompoundTag {
+//        return CompoundTag().apply {
+//            putDouble("x", nextPos.x.toDouble())
+//            putDouble("y", nextPos.y.toDouble())
+//            putDouble("z", nextPos.z.toDouble())
+//        }
+//    }
+//
+//    override fun onDataPacket(net: Connection?, pkt: ClientboundBlockEntityDataPacket?) {
+//        super.onDataPacket(net, pkt)
+//        if (pkt != null) {
+//            with(pkt.tag!!) {
+//                val x = getDouble("x").toInt()
+//                val y = getDouble("y").toInt()
+//                val z = getDouble("z").toInt()
+//                nextPos = BlockPos(x, y, z)
+//            }
+////            println("received $nextPos")
+//        }
+//    }
 
-    override fun onDataPacket(net: Connection?, pkt: ClientboundBlockEntityDataPacket?) {
-        super.onDataPacket(net, pkt)
-        if (pkt != null) {
-            with(pkt.tag!!) {
-                val x = getDouble("x").toInt()
-                val y = getDouble("y").toInt()
-                val z = getDouble("z").toInt()
-                nextPos = BlockPos(x, y, z)
-            }
-//            println("received $nextPos")
-        }
-    }
-
-    fun updateNextPos(level: ServerLevel) {
-        nextPos = level.getNetwork().getNextTeleporter(pos)
-
-        level.blockEntityChanged(pos)
-        level.sendBlockUpdated(pos, state, state, 3)
-    }
+//    fun updateNextPos(level: ServerLevel) {
+//        nextPos = level.getNetwork().getNextTeleporter(pos)
+//
+//        level.blockEntityChanged(pos)
+//        level.sendBlockUpdated(pos, state, state, 3)
+//    }
 
 }
