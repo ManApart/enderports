@@ -77,7 +77,7 @@ class TeleporterNetwork(private val world: Level) : SavedData() {
             }
         }
 
-        println("Rebalance complete in "+ (System.currentTimeMillis() - start))
+        println("Rebalance complete in " + (System.currentTimeMillis() - start))
     }
 
     internal fun buildTeleporterChain() {
@@ -86,7 +86,9 @@ class TeleporterNetwork(private val world: Level) : SavedData() {
             (0 until chain.size - 1).forEach { i ->
                 newChain[chain[i]] = chain[i + 1]
             }
-            newChain[chain.last()] = chain.first()
+            if (chain.isNotEmpty()) {
+                newChain[chain.last()] = chain.first()
+            }
         }
         teleporterChain = newChain
     }
