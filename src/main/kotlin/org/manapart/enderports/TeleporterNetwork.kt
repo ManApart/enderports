@@ -96,7 +96,7 @@ class TeleporterNetwork(private val world: Level) : SavedData() {
     private fun getKey(pos: BlockPos): String {
         return try {
             val state = world.getBlockState(pos.below())
-            state.block.descriptionId.toString()
+            state.block.descriptionId
         } catch (e: Exception) {
             println("Unable to find teleporter key for $pos")
             ""
@@ -104,8 +104,8 @@ class TeleporterNetwork(private val world: Level) : SavedData() {
     }
 
     private fun isTeleporter(pos: BlockPos): Boolean {
-        val key = world.getBlockState(pos).block.descriptionId.toString()
-        return key == ModBlocks.TELEPORTER_BLOCK.descriptionId.toString()
+        val key = world.getBlockState(pos).block.descriptionId
+        return key == ModBlocks.TELEPORTER_BLOCK.descriptionId
     }
 
     fun dumpText(): String {

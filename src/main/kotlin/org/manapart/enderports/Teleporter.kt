@@ -21,7 +21,6 @@ import net.minecraft.world.level.block.state.BlockBehaviour
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.BlockHitResult
 
-//TODO - not dropping item
 fun createTeleporterProps(): BlockBehaviour.Properties {
     return BlockBehaviour.Properties.of().apply {
         requiresCorrectToolForDrops()
@@ -65,10 +64,9 @@ class Teleporter(props: Properties) : SlabBlock(props), EntityBlock {
         } else {
             val nextPos = (level.getBlockEntity(pos) as TeleporterEntity?)?.nextPos?.above() ?: pos
             println("Client TP: $nextPos")
-            //TODO - this seems wrong, near but too high
-            player.moveOrInterpolateTo(nextPos.center)
-
-//            player.moveOrInterpolateTo(nextPos, player.yHeadRot, 0f)
+            with(nextPos.center) {
+                player.absSnapTo(x, y, z, player.yHeadRot, 0f)
+            }
         }
         return InteractionResult.PASS
     }
