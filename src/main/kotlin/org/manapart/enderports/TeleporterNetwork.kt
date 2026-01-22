@@ -13,31 +13,13 @@ import java.util.function.Supplier
 const val DATA_NAME = MODID + "_TeleporterSaveData"
 
 fun ServerLevel.getNetwork(): TeleporterNetwork {
-//    return level.dataStorage.computeIfAbsent(TeleporterNetwork.TYPE)
-//    val data = level.dataStorage.computeIfAbsent(TeleporterNetworkData.TYPE)
-//    return TeleporterNetwork(this, data)
-//    return deleteMeNetwork ?: TeleporterNetwork(this).also { deleteMeNetwork = it }
     val storage = level.dataStorage
-
-    // In 1.21.1, SavedData.Factory is the standard way to bridge the two
-//    val factory = SavedData.Factory(
-//        { TeleporterNetwork(this) }, // Supplier
-//        { tag, registries ->
-//            // Use our level-bound codec to parse the tag
-//            TeleporterNetwork.codec(this).parse(NbtOps.INSTANCE, tag)
-//                .resultOrPartial { println("Failed to load network: $it") }
-//                .orElseGet { TeleporterNetwork(this) }
-//        },
-//        null
-//    )
-
-//    return storage.computeIfAbsent(factory, DATA_NAME)
     return storage.computeIfAbsent(SavedDataType<TeleporterNetwork>(
         DATA_NAME,
-        { TeleporterNetwork(this) },
+        { TeleporterNetwork(this)},
         TeleporterNetwork.codec(this),
         DataFixTypes.LEVEL
-    ))
+    )).apply { buildTeleporterChain() }
 }
 
 class TeleporterNetwork(private val world: Level, private val network: MutableMap<String, MutableSet<BlockPos>> = mutableMapOf()) : SavedData() {
@@ -62,37 +44,7 @@ class TeleporterNetwork(private val world: Level, private val network: MutableMa
                 }
             )
         }
-
-//        private val CODEC: Codec<TeleporterNetwork> = RecordCodecBuilder.create { instance ->
-//            instance.group(
-//                Codec.unboundedMap(Codec.STRING, POS_SET_CODEC).fieldOf("network").forGetter { it.network }
-//            ).apply(instance) { networkMap -> TeleporterNetwork(networkMap.toMutableMap()) }
-//        }
-//
-//        val TYPE = SavedDataType<TeleporterNetwork>(
-//            DATA_NAME,
-//            { TeleporterNetwork() },
-//            CODEC,
-//            null
-//        )
     }
-
-
-//    override fun save(cnbt: CompoundTag): CompoundTag {
-//        val nodes = ListTag()
-//        for (key in network.keys) {
-//            for (value in network[key]!!) {
-//                val node = CompoundTag()
-//                node.putString("key", key)
-//                node.putDouble("x", value.x.toDouble())
-//                node.putDouble("y", value.y.toDouble())
-//                node.putDouble("z", value.z.toDouble())
-//                nodes.add(node)
-//            }
-//        }
-//        cnbt.put("nodes", nodes)
-//        return cnbt
-//    }
 
     fun addTeleporter(pos: BlockPos) {
         val beneathBlockName = getKey(pos)
@@ -141,6 +93,10 @@ class TeleporterNetwork(private val world: Level, private val network: MutableMa
         }
 
         println("Rebalance complete in " + (System.currentTimeMillis() - start))
+    }
+
+    fun assureTeleporterChain(){
+        if (teleporterChain.isEmpty()) buildTeleporterChain()
     }
 
     internal fun buildTeleporterChain() {

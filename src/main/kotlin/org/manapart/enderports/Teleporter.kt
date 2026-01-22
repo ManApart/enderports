@@ -1,8 +1,6 @@
 package org.manapart.enderports
 
 import net.minecraft.core.BlockPos
-import net.minecraft.core.SectionPos.y
-import net.minecraft.core.SectionPos.z
 import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
@@ -49,6 +47,7 @@ class Teleporter(props: Properties) : SlabBlock(props), EntityBlock {
             val network = (level as ServerLevel).getNetwork()
             val nextPos = network.getNextTeleporter(pos)
             val serverPlayer = player as ServerPlayer
+            network.assureTeleporterChain()
             return if (pos != nextPos) {
                 val x = nextPos.x + .5
                 val y = nextPos.y + 1.0
@@ -57,7 +56,7 @@ class Teleporter(props: Properties) : SlabBlock(props), EntityBlock {
                 player.connection.teleport(x, y, z, serverPlayer.yHeadRot, 0f)
                 level.playSound(null, nextPos, SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1f, 1f)
                 network.removeStaleLocation(nextPos)
-                println("Teleported ${player.name.string} from ${pos} to $nextPos in " + (System.currentTimeMillis() - start))
+                println("Teleported ${player.name.string} from $pos to $nextPos in " + (System.currentTimeMillis() - start))
                 InteractionResult.SUCCESS
             } else {
                 player.connection.teleport(pos.x+.5, pos.y+1.0, pos.z+.5, serverPlayer.yHeadRot, 0f)
