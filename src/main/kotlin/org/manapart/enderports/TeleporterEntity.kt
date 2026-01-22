@@ -27,6 +27,7 @@ class TeleportTicker : BlockEntityTicker<TeleporterEntity> {
 }
 
 class TeleporterEntity(private val pos: BlockPos, private val state: BlockState) : BlockEntity(ENDERPORT_BLOCK_ENTITY, pos, state) {
+    //Give height to load area before server kicks in
     var nextPos = BlockPos(pos.x, 400, pos.y)
 
     override fun getUpdatePacket(): Packet<ClientGamePacketListener>? {

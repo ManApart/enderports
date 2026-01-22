@@ -1,19 +1,82 @@
 package org.manapart.enderports
 
+import com.mojang.serialization.Codec
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.nbt.ListTag
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.util.datafix.DataFixTypes
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.saveddata.SavedData
+import net.minecraft.world.level.saveddata.SavedDataType
 import java.util.function.Supplier
-
 
 const val DATA_NAME = MODID + "_TeleporterSaveData"
 
-class TeleporterNetwork(private val world: Level) : SavedData() {
-    private val network = mutableMapOf<String, MutableSet<BlockPos>>()
+fun ServerLevel.getNetwork(): TeleporterNetwork {
+//    return level.dataStorage.computeIfAbsent(TeleporterNetwork.TYPE)
+//    val data = level.dataStorage.computeIfAbsent(TeleporterNetworkData.TYPE)
+//    return TeleporterNetwork(this, data)
+//    return deleteMeNetwork ?: TeleporterNetwork(this).also { deleteMeNetwork = it }
+    val storage = level.dataStorage
+
+    // In 1.21.1, SavedData.Factory is the standard way to bridge the two
+//    val factory = SavedData.Factory(
+//        { TeleporterNetwork(this) }, // Supplier
+//        { tag, registries ->
+//            // Use our level-bound codec to parse the tag
+//            TeleporterNetwork.codec(this).parse(NbtOps.INSTANCE, tag)
+//                .resultOrPartial { println("Failed to load network: $it") }
+//                .orElseGet { TeleporterNetwork(this) }
+//        },
+//        null
+//    )
+
+//    return storage.computeIfAbsent(factory, DATA_NAME)
+    return storage.computeIfAbsent(SavedDataType<TeleporterNetwork>(
+        DATA_NAME,
+        { TeleporterNetwork(this) },
+        TeleporterNetwork.codec(this),
+        DataFixTypes.LEVEL
+    ))
+}
+
+class TeleporterNetwork(private val world: Level, private val network: MutableMap<String, MutableSet<BlockPos>> = mutableMapOf()) : SavedData() {
     private var teleporterChain = mapOf<BlockPos, BlockPos>()
+
+    companion object {
+        private val POS_SET_CODEC: Codec<MutableSet<BlockPos>> = BlockPos.CODEC.listOf().xmap(
+            { list -> list.toMutableSet() },
+            { set -> set.toList() }
+        )
+
+        val DATA_CODEC: Codec<Map<String, List<BlockPos>>> =
+            Codec.unboundedMap(Codec.STRING, BlockPos.CODEC.listOf())
+
+        fun codec(world: Level): Codec<TeleporterNetwork> {
+            return DATA_CODEC.xmap(
+                { dataMap ->
+                    TeleporterNetwork(world, dataMap.mapValues { it.value.toMutableSet() }.toMutableMap())
+                },
+                { networkInstance ->
+                    networkInstance.network.mapValues { it.value.toList() }
+                }
+            )
+        }
+
+//        private val CODEC: Codec<TeleporterNetwork> = RecordCodecBuilder.create { instance ->
+//            instance.group(
+//                Codec.unboundedMap(Codec.STRING, POS_SET_CODEC).fieldOf("network").forGetter { it.network }
+//            ).apply(instance) { networkMap -> TeleporterNetwork(networkMap.toMutableMap()) }
+//        }
+//
+//        val TYPE = SavedDataType<TeleporterNetwork>(
+//            DATA_NAME,
+//            { TeleporterNetwork() },
+//            CODEC,
+//            null
+//        )
+    }
+
 
 //    override fun save(cnbt: CompoundTag): CompoundTag {
 //        val nodes = ListTag()
@@ -119,9 +182,9 @@ class TeleporterNetwork(private val world: Level) : SavedData() {
     }
 }
 
-//fun load(nbt: CompoundTag, world: Level): TeleporterNetwork {
-//    val network = TeleporterNetwork(world)
-//    //Constants.NBT.TAG_COMPOUND - not sure where this constant lives now
+fun load(nbt: CompoundTag, world: Level): TeleporterNetwork {
+    val network = TeleporterNetwork(world)
+    //Constants.NBT.TAG_COMPOUND - not sure where this constant lives now
 //    nbt.getList("nodes", 10).forEach {
 //        val node = it as CompoundTag
 //        val key = node.getString("key")
@@ -132,15 +195,11 @@ class TeleporterNetwork(private val world: Level) : SavedData() {
 //        network.addTeleporter(key, pos)
 //    }
 //    network.buildTeleporterChain()
-////    println("Teleport Network Loaded")
-////    println(network.dumpText())
-//    return network
-//}
-//
-fun ServerLevel.getNetwork(): TeleporterNetwork {
-//    val loadFunction = { nbt: CompoundTag -> load(nbt, this) }
-//    return dataStorage.computeIfAbsent(loadFunction, TeleporterNetwork.NetworkSupplier(this), DATA_NAME)
-    return deleteMeNetwork ?: TeleporterNetwork(this).also { deleteMeNetwork = it }
+//    println("Teleport Network Loaded")
+//    println(network.dumpText())
+    return network
 }
+
+
 
 private var deleteMeNetwork: TeleporterNetwork? = null
