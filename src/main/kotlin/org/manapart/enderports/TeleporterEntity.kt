@@ -1,11 +1,6 @@
 package org.manapart.enderports
 
 import net.minecraft.core.BlockPos
-import net.minecraft.core.HolderLookup
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.network.protocol.Packet
-import net.minecraft.network.protocol.game.ClientGamePacketListener
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.entity.BlockEntity
@@ -29,32 +24,6 @@ class TeleportTicker : BlockEntityTicker<TeleporterEntity> {
 class TeleporterEntity(private val pos: BlockPos, private val state: BlockState) : BlockEntity(ENDERPORT_BLOCK_ENTITY, pos, state) {
     //Give height to load area before server kicks in
     var nextPos = BlockPos(pos.x, 400, pos.y)
-
-    override fun getUpdatePacket(): Packet<ClientGamePacketListener>? {
-        return ClientboundBlockEntityDataPacket.create(this)
-    }
-
-    override fun getUpdateTag(provider: HolderLookup.Provider): CompoundTag {
-        return CompoundTag().apply {
-            putDouble("x", nextPos.x.toDouble())
-            putDouble("y", nextPos.y.toDouble())
-            putDouble("z", nextPos.z.toDouble())
-        }
-    }
-
-
-//    override fun onDataPacket(net: Connection?, pkt: ClientboundBlockEntityDataPacket?) {
-//        super.onDataPacket(net, pkt)
-//        if (pkt != null) {
-//            with(pkt.tag!!) {
-//                val x = getDouble("x").toInt()
-//                val y = getDouble("y").toInt()
-//                val z = getDouble("z").toInt()
-//                nextPos = BlockPos(x, y, z)
-//            }
-////            println("received $nextPos")
-//        }
-//    }
 
     fun updateNextPos(level: ServerLevel) {
         nextPos = level.getNetwork().getNextTeleporter(pos)
